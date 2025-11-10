@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT: VISITOR TRACKER // ACCESS LOG V6</title>
+    <title>项目: 访客追踪控制台 // V7</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 全局样式和未来主义字体 - 颜色和布局 */
-        /* (与 V5 保持一致) */
+        /* 1. 颜色、字体和布局 (与 V6 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
@@ -164,24 +163,24 @@
 
     <div class="container">
         
-        <h1 data-text="PROJECT: VISITOR TRACKER // ACCESS LOG V6">PROJECT: VISITOR TRACKER // ACCESS LOG V6</h1>
+        <h1 data-text="项目: 访客追踪控制台 V7">项目: 访客追踪控制台 V7</h1>
 
         <div class="main-panel">
             
             <div class="module">
-                <h2>// VISITOR DATA TRACKING (REAL-TIME)</h2>
+                <h2>// 访客数据追踪 (实时)</h2>
                 <div class="stats-grid" id="stats-grid">
                     </div>
             </div>
 
             <div class="module">
-                <h2>// REAL-TIME ACTIVITY LOG (LOG-FEED)</h2>
+                <h2>// 实时活动日志</h2>
                 <div class="log-feed" id="log-feed">
                     </div>
             </div>
             
             <div class="module only-mobile">
-                <h2>// PROJECT DEPLOYMENT STATUS</h2>
+                <h2>// 项目部署状态</h2>
                 <div id="progress-container-mobile">
                     </div>
             </div>
@@ -191,15 +190,15 @@
         <div class="side-panel">
             
             <div class="module">
-                <h2>// ACCESS TERMINAL (NAV)</h2>
-                <a href="#profile" class="nav-link">\[ACCESS: PROFILE]</a>
-                <a href="#projects" class="nav-link">\[LOG: PROJECTS]</a>
-                <a href="#connect" class="nav-link">\[CONNECT: TERMINAL]</a>
-                <a href="#download" class="nav-link">\[DOWNLOAD: ASSETS]</a>
+                <h2>// 访问终端 (导航)</h2>
+                <a href="#profile" class="nav-link">\[访问: 用户信息]</a>
+                <a href="#projects" class="nav-link">\[日志: 项目]</a>
+                <a href="#connect" class="nav-link">\[连接: 终端]</a>
+                <a href="#download" class="nav-link">\[下载: 资产]</a>
             </div>
 
             <div class="module only-desktop">
-                <h2>// PROJECT DEPLOYMENT STATUS</h2>
+                <h2>// 项目部署状态</h2>
                 <div id="progress-container-desktop">
                     </div>
             </div>
@@ -209,14 +208,14 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 - 访问者数据
+        // 1. 初始数据模型 - 访客数据
         // -----------------------
         
         function getDeviceInfo() {
             const screenW = window.screen.width;
             const screenH = window.screen.height;
             const os = navigator.platform;
-            let browser = 'Unknown';
+            let browser = '未知浏览器';
             const userAgent = navigator.userAgent;
 
             if (userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edge") === -1) {
@@ -232,46 +231,37 @@
             return { screenW, screenH, os, browser };
         }
 
-        // 模拟生成国家/地区（IP由API提供，Location继续模拟）
-        function generateRandomLocation() {
-            const cities = ['Shenzhen', 'New York', 'London', 'Tokyo', 'Berlin', 'Dubai', 'Sydney', 'Paris', 'Moscow', 'Shanghai'];
-            const countries = ['China', 'USA', 'UK', 'Japan', 'Germany', 'UAE', 'Australia', 'France', 'Russia', 'Brazil'];
-            const city = cities[Math.floor(Math.random() * cities.length)];
-            const country = countries[Math.floor(Math.random() * countries.length)];
-            return `${city}, ${country}`;
-        }
-
         const deviceInfo = getDeviceInfo();
 
-        // 初始 IP 设置为加载中
+        // 初始 IP 和地理位置设置为加载中
         const initialStats = [
-            { id: 'ip', name: '接入 IP (Public)', value: 'LOADING...', unit: '' }, // IP 目标
-            { id: 'browser', name: '浏览器型号 (Client)', value: deviceInfo.browser, unit: '' },
-            { id: 'os', name: '操作系统 (OS)', value: deviceInfo.os, unit: '' },
-            { id: 'res', name: '屏幕分辨率 (Resolution)', value: `${deviceInfo.screenW}x${deviceInfo.screenH}`, unit: '' },
-            { id: 'location', name: '地理位置 (Simulated)', value: generateRandomLocation(), unit: '' },
-            { id: 'access', name: '访问时间 (Timestamp)', value: new Date().toLocaleTimeString(), unit: '' },
+            { id: 'ip', name: '接入 IP (公网)', value: '加载中...', unit: '' },
+            { id: 'country', name: '国家/地区', value: '查询中...', unit: '' },
+            { id: 'city', name: '城市', value: '查询中...', unit: '' },
+            { id: 'browser', name: '浏览器型号', value: deviceInfo.browser, unit: '' },
+            { id: 'os', name: '操作系统', value: deviceInfo.os, unit: '' },
+            { id: 'res', name: '屏幕分辨率', value: `${deviceInfo.screenW}x${deviceInfo.screenH}`, unit: ' 像素' },
+            { id: 'access', name: '访问时间', value: new Date().toLocaleTimeString('zh-CN'), unit: '' },
         ];
 
-        // ... (initialProjects 和 logs 保持不变)
         const initialProjects = [
-            { name: 'Alpha-Nexus Deployment', progress: 92.1, status: 'Awaiting Final Authorization' },
-            { name: 'Quantum Pathfinding', progress: 45.8, status: 'Calculations in Progress' },
-            { name: 'Data Stream Intercept', progress: 100, status: 'Complete / Integrity: 99.999%' },
-            { name: 'Target Vector Analysis (TVA)', progress: 65.3, status: 'Optimizing Route Efficiency' },
+            { name: 'Alpha-Nexus 部署', progress: 92.1, status: '等待最终授权' },
+            { name: '量子路径规划', progress: 45.8, status: '计算进行中' },
+            { name: '数据流拦截', progress: 100, status: '完成 / 完整性: 99.999%' },
+            { name: '目标向量分析', progress: 65.3, status: '优化路径效率' },
         ];
         
+        // 统一中文日志
         const logs = [
-            ' <INFO> System Initializing... Status: SUCCESS',
-            ' <ATTEMPT> Unauthorized probe detected from IP: 101.55.2.145',
-            ' <EVENT> Resource Allocation for Sub-Routine 7 initiated. Status: SUCCESS',
-            ' <DATA> Encrypted Packet Signature Verified. Key Hash: 7A1C-4E0D-B9F2',
-            ' <USER> New connection established: Tracking ID 89B-G4-C0DE',
-            ' <ERROR> Database write failed. Retrying in 3 seconds.',
-            ' <SUCCESS> Data Integrity Check Complete. No anomalies detected.',
-            ' <DEBUG> Memory cleanup routine completed. 4.5GB recovered.'
+            ' <信息> 系统初始化... 状态: 成功',
+            ' <尝试> IP 101.55.2.145 检测到未经授权的探测',
+            ' <事件> 子程序 7 资源分配启动。 状态: 成功',
+            ' <数据> 加密数据包签名验证。 密钥哈希: 7A1C-4E0D-B9F2',
+            ' <用户> 新连接建立: 追踪 ID 89B-G4-C0DE',
+            ' <错误> 数据库写入失败。 3 秒后重试。',
+            ' <成功> 数据完整性检查完成。未发现异常。',
+            ' <调试> 内存清理程序完成。 4.5GB 恢复。'
         ];
-
 
         const statsGrid = document.getElementById('stats-grid');
         const progressContainerDesktop = document.getElementById('progress-container-desktop');
@@ -285,7 +275,7 @@
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <h3>${stat.name}</h3>
-                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'location') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'country' || stat.id === 'city') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
                 </div>
             `).join('');
         }
@@ -304,58 +294,93 @@
         }
 
         // -----------------------
-        // 3. IP 获取逻辑
+        // 3. IP 和地理位置获取逻辑
         // -----------------------
+        
+        /**
+         * 辅助函数：根据 ID 更新数据块的内容和值
+         */
+        function updateStatDisplay(id, value, isError = false) {
+            const entry = initialStats.find(s => s.id === id);
+            const element = document.getElementById(`${id}-value`);
+            if (entry && element) {
+                entry.value = value;
+                element.textContent = value + entry.unit;
+                if (isError) {
+                    element.style.color = 'red';
+                } else {
+                    element.style.color = 'var(--text-color)'; // 成功时恢复颜色
+                }
+            }
+        }
+
+        /**
+         * 步骤 1: 获取公网 IP
+         */
         function fetchPublicIP() {
-            const ipEntry = initialStats.find(s => s.id === 'ip');
-            const ipElement = document.getElementById('ip-value');
-            if (!ipEntry || !ipElement) return;
-
-            ipElement.textContent = 'QUERYING...';
-
+            updateStatDisplay('ip', '查询中...');
+            
             fetch('https://api.ipify.org?format=json')
                 .then(response => {
-                    if (!response.ok) throw new Error('API query failed');
+                    if (!response.ok) throw new Error('IP API 查询失败');
                     return response.json();
                 })
                 .then(data => {
-                    if (data.ip) {
-                        ipEntry.value = data.ip;
-                        ipElement.textContent = data.ip;
+                    const ip = data.ip;
+                    updateStatDisplay('ip', ip);
+                    // 成功获取 IP 后，立即进行地理位置查询
+                    fetchGeolocation(ip); 
+                })
+                .catch(error => {
+                    console.error("获取公网 IP 失败:", error);
+                    updateStatDisplay('ip', '错误: IP 不可用', true);
+                    updateStatDisplay('country', '无法定位', true);
+                    updateStatDisplay('city', '无法定位', true);
+                });
+        }
+
+        /**
+         * 步骤 2: 根据 IP 获取地理位置
+         */
+        function fetchGeolocation(ip) {
+            updateStatDisplay('country', '定位中...');
+            updateStatDisplay('city', '定位中...');
+            
+            // 使用 ip-api.com 的公共免费 API，限制 45 次/分钟
+            const geoApiUrl = `http://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
+            
+            fetch(geoApiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Geo API HTTP 错误');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateStatDisplay('country', data.country || '未知国家');
+                        updateStatDisplay('city', data.city || '未知城市');
                     } else {
-                        throw new Error('Invalid API response');
+                        // API 限制或查询失败
+                        updateStatDisplay('country', '查询失败', true);
+                        updateStatDisplay('city', data.message || 'API 错误', true);
                     }
                 })
                 .catch(error => {
-                    console.error("Failed to fetch public IP:", error);
-                    ipEntry.value = 'ERROR: IP UNAVAILABLE';
-                    ipElement.textContent = 'ERROR: IP UNAVAILABLE';
-                    ipElement.style.color = 'red'; // 错误时变红
+                    console.error("获取地理位置失败:", error);
+                    updateStatDisplay('country', '网络错误', true);
+                    updateStatDisplay('city', '网络错误', true);
                 });
         }
-        
+
+
         // -----------------------
         // 4. 实时数据更新逻辑
         // -----------------------
 
         function updateRandomData() {
-            // 只更新模拟数据
-            initialStats.forEach(stat => {
-                if (stat.id === 'location') {
-                    // 每秒有 5% 的概率切换地点
-                     if (Math.random() < 0.05) {
-                        stat.value = generateRandomLocation();
-                    }
-                } else if (stat.id === 'access') {
-                    // 实时更新时间戳
-                    stat.value = new Date().toLocaleTimeString();
-                }
-                
-                const element = document.getElementById(`${stat.id}-value`);
-                if (element && stat.id !== 'ip') { // IP 不在这里更新
-                    element.textContent = stat.value + stat.unit;
-                }
-            });
+            // 只需要更新时间戳和进度条
+            
+            // 更新时间戳
+            updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
 
             // 进度条更新 (保持模拟)
             [progressContainerDesktop, progressContainerMobile].forEach(container => {
@@ -372,6 +397,7 @@
                             progressFills[index].style.width = project.progress + '%';
                         }
                         if(progressTexts[index]) {
+                            // 确保此处中文内容也是更新后的
                             progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
                         }
                     }
@@ -384,13 +410,13 @@
         // Log feed 保持不变
         function addLogEntry() {
             const now = new Date();
+            // 使用中文时间格式
             const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             const randomLog = logs[Math.floor(Math.random() * logs.length)];
             
             let logClass = '';
-            if (randomLog.includes('<WARNING>') || randomLog.includes('<ATTEMPT>')) logClass = 'warning';
-            else if (randomLog.includes('<ERROR>')) logClass = 'error';
-            else if (randomLog.includes('<SUCCESS>') || randomLog.includes('<INFO>') || randomLog.includes('<EVENT>') || randomLog.includes('<USER>')) logClass = 'success';
+            if (randomLog.includes('<尝试>') || randomLog.includes('<错误>')) logClass = 'error'; // 尝试和错误使用红色
+            else if (randomLog.includes('<信息>') || randomLog.includes('<事件>') || randomLog.includes('<用户>') || randomLog.includes('<数据>') || randomLog.includes('<成功>') || randomLog.includes('<调试>')) logClass = 'success'; // 其他使用绿色
             
             const newLog = document.createElement('div');
             newLog.className = `log-line ${logClass}`;
@@ -408,7 +434,6 @@
         }
 
         // 粒子背景和 Glitch 动画 (保持不变)
-        function createParticles() { /* ... implementation ... */ }
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -420,7 +445,8 @@
                 particle.style.animationDuration = `${Math.random() * 8 + 4}s`; 
                 particle.style.animationDelay = `-${Math.random() * 12}s`; 
                 particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
-
+                
+                // 保持粒子颜色与主色调一致 (CSS中已设置)
                 container.appendChild(particle);
             }
         }
@@ -435,10 +461,10 @@
             renderProgress(progressContainerMobile);
             createParticles();
             
-            // 页面加载时立即获取公网 IP
+            // 步骤 1: 启动 IP 和定位查询
             fetchPublicIP();
 
-            // 数据更新频率提高到每秒一次 (1000ms)
+            // 步骤 2: 启动随机数据更新 (每秒一次)
             setInterval(updateRandomData, 1000); 
             addLogEntry();
         });
