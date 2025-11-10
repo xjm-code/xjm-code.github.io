@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V11</title>
+    <title>项目: 访客追踪控制台 // V12 (精简模式)</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 颜色、字体和布局 (与 V10 保持一致) */
+        /* 1. 颜色、字体和布局 (与 V11 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
@@ -167,7 +167,7 @@
         /* 增加警告色日志样式 */
         .log-line.error { color: #ff5555; font-weight: bold; }
         .log-line.success { color: #00ff99; } 
-        .log-line.warning { color: var(--warning-color); } /* 新增警告色 */
+        .log-line.warning { color: var(--warning-color); } 
 
         /* 隐藏和显示控制 */
         .only-desktop { display: none; }
@@ -183,12 +183,12 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V11">项目: 访客追踪控制台 V11</h1>
+        <h1 data-text="项目: 访客追踪控制台 V12">项目: 访客追踪控制台 V12</h1>
 
         <div class="main-panel">
             
             <div class="module">
-                <h2>// 访客数据追踪 (实时)</h2>
+                <h2>// 访客数据追踪 (核心)</h2>
                 <div class="stats-grid" id="stats-grid">
                     </div>
             </div>
@@ -228,40 +228,17 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 
+        // 1. 初始数据模型 (已精简)
         // -----------------------
         
-        function getDeviceInfo() {
-            const screenW = window.screen.width;
-            const screenH = window.screen.height;
-            const os = navigator.platform;
-            let browser = '未知浏览器';
-            const userAgent = navigator.userAgent;
-
-            if (userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edge") === -1) {
-                browser = "Chrome";
-            } else if (userAgent.indexOf("Firefox") > -1) {
-                browser = "Firefox";
-            } else if (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1) {
-                browser = "Safari";
-            } else if (userAgent.indexOf("Edge") > -1) {
-                browser = "Edge";
-            }
-            
-            return { screenW, screenH, os, browser };
-        }
-
-        const deviceInfo = getDeviceInfo();
-
+        // ⚠️ 注意: 移除了 getDeviceInfo() 及其相关数据
+        
         const initialStats = [
             { id: 'ip', name: '接入 IP (公网)', value: '加载中...', unit: '' },
             { id: 'country', name: '国家/地区', value: '查询中...', unit: '' },
             { id: 'city', name: '城市', value: '查询中...', unit: '' },
             { id: 'temp', name: '当地温度', value: '查询中...', unit: ' °C' }, 
             { id: 'weather', name: '天气概况', value: '查询中...', unit: '' }, 
-            { id: 'browser', name: '浏览器型号', value: deviceInfo.browser, unit: '' },
-            { id: 'os', name: '操作系统', value: deviceInfo.os, unit: '' },
-            { id: 'res', name: '屏幕分辨率', value: `${deviceInfo.screenW}x${deviceInfo.screenH}`, unit: ' 像素' },
             { id: 'access', name: '访问时间', value: new Date().toLocaleTimeString('zh-CN'), unit: '' },
         ];
 
@@ -278,7 +255,7 @@
         const logFeed = document.getElementById('log-feed');
         
         // -----------------------
-        // 2. 随机数据生成函数 (新增)
+        // 2. 随机数据生成函数 
         // -----------------------
         function generateRandomIP(internal = true) {
             if (internal) {
@@ -289,11 +266,10 @@
         }
         
         function generateRandomPort() {
-            return Math.floor(Math.random() * 60000) + 1024; // 避开常见端口
+            return Math.floor(Math.random() * 60000) + 1024;
         }
         
         function generateRandomHash() {
-            // 生成一个 12 位十六进制哈希
             return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
         }
 
@@ -304,7 +280,7 @@
         }
         
         // -----------------------
-        // 3. 实时活动日志数据源 (增强)
+        // 3. 实时活动日志数据源 (与 V11 保持一致)
         // -----------------------
         function generateRandomLog() {
             const types = [
@@ -316,7 +292,6 @@
                 { type: 'DATA', weight: 5, fn: () => `[数据] 传输 ${Math.floor(Math.random() * 1000)} MB 数据包到内部服务器 ${generateRandomIP()}... 状态: 成功` }
             ];
 
-            // 根据权重选择一个日志类型
             let totalWeight = types.reduce((sum, item) => sum + item.weight, 0);
             let random = Math.random() * totalWeight;
             
@@ -327,35 +302,46 @@
                     return { text: ` <${logType.type}> ${logText}`, class: logType.type.toLowerCase() };
                 }
             }
-            return { text: ' <INFO> 系统状态正常', class: 'info' }; // 默认返回值
+            return { text: ' <INFO> 系统状态正常', class: 'info' }; 
         }
 
         // -----------------------
-        // 4. 实时数据更新逻辑
+        // 4. 渲染和通用工具
         // -----------------------
-        
-        function renderProgress(container) { /* ... implementation ... */ }
-        function renderProgress(container) {
-            if (!container) return; 
-            container.innerHTML = initialProjects.map(project => `
-                <div class="progress-item">
-                    <h4>${project.name}</h4>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${project.progress}%"></div>
-                    </div>
-                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
+        function renderStats() {
+            // 只需要渲染 initialStats 中当前存在的项
+            statsGrid.innerHTML = initialStats.map(stat => `
+                <div class="stat-item">
+                    <h3>${stat.name}</h3>
+                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'country' || stat.id === 'city' || stat.id === 'temp') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
                 </div>
             `).join('');
+        }
+        
+        function updateStatDisplay(id, value, isError = false) {
+            const entry = initialStats.find(s => s.id === id);
+            const element = document.getElementById(`${id}-value`);
+            if (entry && element) {
+                entry.value = value;
+                const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
+                element.textContent = displayValue + entry.unit;
+                
+                if (isError) {
+                    element.style.color = 'red';
+                } else {
+                    element.style.color = 'var(--text-color)';
+                }
+            }
         }
 
         function addLogEntry() {
             const now = new Date();
             const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             
-            const log = generateRandomLog(); // 调用新的随机日志生成器
+            const log = generateRandomLog(); 
             
             const newLog = document.createElement('div');
-            newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; // 将 ATTACK 归类到 error
+            newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; 
             newLog.textContent = `[${timeString}]${log.text}`;
             
             if (logFeed.firstChild) {
@@ -368,11 +354,14 @@
                 logFeed.removeChild(logFeed.lastChild);
             }
         }
+        
+        // -----------------------
+        // 5. 实时数据更新和 API 逻辑 (与 V11 保持一致)
+        // -----------------------
 
         function updateRandomData() {
             updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
 
-            // 进度条更新 (保持模拟)
             [progressContainerDesktop, progressContainerMobile].forEach(container => {
                 if (!container) return;
                 const progressFills = container.querySelectorAll('.progress-fill');
@@ -394,26 +383,6 @@
             });
 
             addLogEntry();
-        }
-        
-        // -----------------------
-        // 5. IP, 地理位置和天气获取逻辑 (保持不变)
-        // -----------------------
-        
-        function updateStatDisplay(id, value, isError = false) {
-            const entry = initialStats.find(s => s.id === id);
-            const element = document.getElementById(`${id}-value`);
-            if (entry && element) {
-                entry.value = value;
-                const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
-                element.textContent = displayValue + entry.unit;
-                
-                if (isError) {
-                    element.style.color = 'red';
-                } else {
-                    element.style.color = 'var(--text-color)';
-                }
-            }
         }
 
         function fetchPublicIP() {
@@ -505,8 +474,20 @@
                     updateStatDisplay('weather', '查询错误', true);
                 });
         }
+        
+        function renderProgress(container) {
+            if (!container) return; 
+            container.innerHTML = initialProjects.map(project => `
+                <div class="progress-item">
+                    <h4>${project.name}</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${project.progress}%"></div>
+                    </div>
+                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
+                </div>
+            `).join('');
+        }
 
-        function createParticles() { /* ... implementation ... */ }
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -534,10 +515,8 @@
             createParticles();
             
             fetchPublicIP();
-            // 立即添加第一条日志，避免日志框空白
             addLogEntry();
             
-            // 数据更新频率 (每秒一次)
             setInterval(updateRandomData, 1000); 
         });
 
