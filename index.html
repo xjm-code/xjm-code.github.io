@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V25 (确保所有模拟数据立即渲染)</title>
+    <title>项目: 访客追踪控制台 // V18 (稳定播放器测试版)</title>
     <style>
         /* ---------------------------------- */
         /* 1. 颜色、字体和布局 (NEON-MATRIX 主题) */
@@ -58,7 +58,6 @@
         
         @media (min-width: 768px) {
             .container {
-                /* 桌面端：左侧 2.5 份，右侧 1 份 */
                 grid-template-columns: 2.5fr 1fr;
                 padding: 40px;
                 gap: 25px;
@@ -76,9 +75,35 @@
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             position: relative;
-            grid-column: 1 / -1; 
         }
-        
+        h1:before, h1:after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            text-shadow: 0 0 5px var(--accent-color);
+            clip: rect(0, 0, 0, 0);
+        }
+        h1:after {
+            left: 2px;
+            text-shadow: -1px 0 var(--main-color);
+            animation: glitch-after 2s infinite alternate-reverse;
+        }
+        h1:before {
+            left: -2px;
+            text-shadow: 1px 0 var(--accent-color);
+            animation: glitch-before 3s infinite alternate-reverse;
+        }
+        @keyframes glitch-before {
+            0% { clip: rect(20px, 9999px, 80px, 0); transform: translate(4px, 0); }
+            100% { clip: rect(70px, 9999px, 110px, 0); transform: translate(-2px, 0); }
+        }
+        @keyframes glitch-after {
+            0% { clip: rect(40px, 9999px, 100px, 0); transform: translate(-2px, 0); }
+            100% { clip: rect(30px, 9999px, 70px, 0); transform: translate(1px, 0); }
+        }
         h2 {
             font-size: clamp(1.1em, 2.5vw, 1.3em);
             color: var(--accent-color);
@@ -95,20 +120,11 @@
             filter: drop-shadow(0 0 3px var(--main-color));
             transition: transform 0.3s ease-out, box-shadow 0.3s, filter 0.3s;
         }
-        
-        /* 访客数据面板样式 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-            gap: 10px;
-        }
-        
         .stat-value {
             font-family: 'Audiowide', cursive;
             font-size: clamp(0.9em, 3vw, 1.3em);
             font-weight: 700;
-            /* 强制设为主色，使其在 "加载中" 状态下也能发光 */
-            color: var(--main-color); 
+            color: var(--text-color);
             text-shadow: var(--shadow-glow);
             white-space: normal;
         }
@@ -129,11 +145,58 @@
         }
         
         /* 日志颜色 */
-        .log-line { color: var(--text-color); }
         .log-line.error { color: #ff5555; font-weight: bold; }
         .log-line.success { color: #00ff99; } 
         .log-line.warning { color: var(--warning-color); } 
-        .log-line.info { color: #55aaff; } 
+
+        /* ---------------------------------- */
+        /* 2. 音乐播放器样式 */
+        /* ---------------------------------- */
+        .player-info {
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        
+        /* 进度条/电平指示器 */
+        .level-meter {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .progress-bar { 
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-color);
+            transition: width 0.1s linear;
+        }
+
+        /* 控制按钮 */
+        .player-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: space-around;
+        }
+        .control-btn {
+            background: rgba(255, 0, 255, 0.2); 
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 8px 12px;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            text-shadow: 0 0 5px var(--accent-color);
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .control-btn:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
         
         /* 隐藏和显示控制 */
         .only-desktop { display: none; }
@@ -142,11 +205,12 @@
             .only-mobile { display: none; }
         }
         
-        /* 隐藏原生 Audio 播放器 */
+        /* 调试用途：显示浏览器原生控制条 */
         #real-audio-player {
-            display: none; 
             width: 100%;
             margin-top: 20px;
+            /* 使原生控件更搭配主题，可以删除这行以获得默认样式 */
+            filter: invert(1) hue-rotate(90deg); 
         }
     </style>
 </head>
@@ -156,8 +220,8 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V25">项目: 访客追踪控制台 V25</h1>
-        
+        <h1 data-text="项目: 访客追踪控制台 V18">项目: 访客追踪控制台 V18</h1>
+
         <div class="main-panel">
             
             <div class="module">
@@ -171,6 +235,13 @@
                 <div class="log-feed" id="log-feed">
                     </div>
             </div>
+            
+            <div class="module only-mobile">
+                <h2>// 网络音频控制台</h2>
+                <div id="audio-console-mobile">
+                    </div>
+            </div>
+
         </div>
 
         <div class="side-panel">
@@ -186,12 +257,7 @@
                 <div id="audio-console-desktop">
                     </div>
             </div>
-            
-            <div class="module only-mobile">
-                <h2>// 网络音频控制台</h2>
-                <div id="audio-console-mobile">
-                    </div>
-            </div>
+
         </div>
     </div>
     
@@ -210,11 +276,6 @@
             { id: 'weather', name: '天气概况', value: '查询中...', unit: '' }, 
             { id: 'access', name: '访问时间', value: new Date().toLocaleTimeString('zh-CN'), unit: '' },
         ];
-        
-        // 用于模拟数据的常量
-        const SIM_COUNTRIES = ['美国', '中国', '日本', '德国', '韩国', '新加坡'];
-        const SIM_CITIES = ['旧金山', '上海', '东京', '柏林', '首尔', '香港'];
-        const SIM_WEATHERS = ['晴朗', '多云', '小雨', '大雾', '雷暴'];
 
         const initialCommands = [
             { id: 'cmd001', name: '\[CMD-001] 链路加密验证', status: 'COMPLETE' },
@@ -223,8 +284,10 @@
             { id: 'cmd004', name: '\[CMD-004] 端口指纹采集', status: 'PENDING' },
             { id: 'cmd005', name: '\[CMD-005] 侧信道扫描', status: 'ABORTED' },
         ];
-        
+
+        // 【关键修复】更换为更稳定、更公共的测试音频链接 (来自稳定 CDN)
         const stableTestUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+
         const tracks = [
             { title: 'Public Test Track 1 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
             { title: 'Public Test Track 2 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
@@ -232,50 +295,144 @@
             { title: 'Public Test Track 4 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
         ];
         
-        let playerState = { currentIndex: 0, status: 'STOPPED' };
-        
-        // -----------------------
-        // 2. DOM 元素获取
-        // -----------------------
+        let playerState = {
+            currentIndex: 0,
+            status: 'STOPPED', 
+        };
         
         const statsGrid = document.getElementById('stats-grid');
         const logFeed = document.getElementById('log-feed');
         const commandList = document.getElementById('command-list');
         const audioConsoleDesktop = document.getElementById('audio-console-desktop');
         const audioConsoleMobile = document.getElementById('audio-console-mobile');
+        
         const audioPlayer = document.getElementById('real-audio-player');
         
         // -----------------------
-        // 3. 播放器控制函数 (保持不变)
+        // 2. 播放器控制函数 (核心逻辑)
         // -----------------------
         
-        window.togglePlayPause = function() { /* ... 保持不变 ... */ };
-        window.nextTrack = function() { /* ... 保持不变 ... */ };
-        function renderPlayer(container) { /* ... 保持不变 ... */ }
-        function updatePlayerUI() { /* ... 保持不变 ... */ }
+        window.togglePlayPause = function() {
+            if (audioPlayer.paused || audioPlayer.ended) {
+                audioPlayer.play().then(() => {
+                    playerState.status = 'PLAYING';
+                    addLogEntry({ text: ` <SUCCESS> 音频流: 开始播放 ${tracks[playerState.currentIndex].title}`, class: 'success' });
+                    updatePlayerUI();
+                }).catch(e => {
+                    playerState.status = 'PAUSED';
+                    addLogEntry({ text: ` <WARNING> 音频流: 自动播放失败 (需要用户交互)`, class: 'warning' });
+                    updatePlayerUI();
+                });
+            } else {
+                audioPlayer.pause();
+                playerState.status = 'PAUSED';
+                addLogEntry({ text: ` <INFO> 音频流: 播放暂停`, class: 'info' });
+                updatePlayerUI();
+            }
+        };
+
+        window.nextTrack = function() {
+            playerState.currentIndex = (playerState.currentIndex + 1) % tracks.length;
+            audioPlayer.src = tracks[playerState.currentIndex].url;
+            audioPlayer.load(); 
+            
+            if (playerState.status === 'PLAYING') {
+                audioPlayer.play().then(() => {
+                    addLogEntry({ 
+                        text: ` <INFO> 音频流: 切换并播放 - ${tracks[playerState.currentIndex].title}`, 
+                        class: 'info' 
+                    });
+                });
+            } else {
+                 addLogEntry({ 
+                    text: ` <INFO> 音频流: 切换曲目至 - ${tracks[playerState.currentIndex].title} (当前暂停)`, 
+                    class: 'info' 
+                });
+            }
+            updatePlayerUI();
+        }
+
+        function renderPlayer(container) {
+            const track = tracks[playerState.currentIndex];
+            const isPlaying = playerState.status === 'PLAYING';
+            const statusColor = isPlaying ? '#00ff99' : '#ff00ff';
+            const statusText = isPlaying ? '\[播放中]' : '\[已暂停]';
+
+            const currentTimeFormatted = formatTime(audioPlayer.currentTime || 0);
+            const durationFormatted = formatTime(audioPlayer.duration || 0);
+
+            container.innerHTML = `
+                <div class="player-info">
+                    <p>状态: <span style="color: ${statusColor};">${statusText}</span></p>
+                    <p id="current-track">${track.title}</p>
+                    <p>艺术家: ${track.artist}</p>
+                    <p>时间: <span id="current-time-${container.id}">${currentTimeFormatted}</span> / <span id="duration-${container.id}">${durationFormatted}</span></p>
+                </div>
+                <div class="level-meter">
+                    <div class="progress-bar" id="progress-bar-${container.id}" style="width: 0%;"></div>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn" onclick="togglePlayPause()" id="play-pause-btn-${container.id}">\[${isPlaying ? 'PAUSE' : 'PLAY'}]</button>
+                    <button class="control-btn" onclick="nextTrack()">\[NEXT TRACK]</button>
+                </div>
+            `;
+        }
+
+        function updatePlayerUI() {
+            const isPlaying = playerState.status === 'PLAYING';
+            
+            const btnDesktop = document.getElementById('play-pause-btn-audio-console-desktop');
+            const btnMobile = document.getElementById('play-pause-btn-audio-console-mobile');
+            if (btnDesktop) btnDesktop.textContent = `\[${isPlaying ? 'PAUSE' : 'PLAY'}]`;
+            if (btnMobile) btnMobile.textContent = `\[${isPlaying ? 'PAUSE' : 'PLAY'}]`;
+            
+            const currentTime = audioPlayer.currentTime || 0;
+            const duration = audioPlayer.duration || 0;
+            const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+            const timeDesktop = document.getElementById('current-time-audio-console-desktop');
+            const timeMobile = document.getElementById('current-time-audio-console-mobile');
+            const progDesktop = document.getElementById('progress-bar-audio-console-desktop');
+            const progMobile = document.getElementById('progress-bar-audio-console-mobile');
+            
+            if (timeDesktop) timeDesktop.textContent = formatTime(currentTime);
+            if (timeMobile) timeMobile.textContent = formatTime(currentTime);
+
+            if (progDesktop) progDesktop.style.width = progressPercent + '%';
+            if (progMobile) progMobile.style.width = progressPercent + '%';
+            
+            const track = tracks[playerState.currentIndex];
+            const currentTrackDisplays = document.querySelectorAll('#current-track');
+            const durationDisplays = document.querySelectorAll('[id^="duration-"]');
+            
+            currentTrackDisplays.forEach(el => el.textContent = track.title);
+            durationDisplays.forEach(el => el.textContent = formatTime(duration));
+        }
 
         // -----------------------
-        // 4. 实时数据更新主循环
+        // 3. 实时数据更新主循环
         // -----------------------
         
         function updateRandomData() {
-            // 只更新时间
             updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
-            
-            // 随机更新其他数据
-            randomlyUpdateVisitorData();
-
             updateCommands(); 
             updatePlayerUI(); 
             addLogEntry();
         }
         
         // -----------------------
-        // 5. 渲染和模拟数据函数
+        // 4. API 和辅助函数 (IP/地理位置修复已包含)
         // -----------------------
         
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '00:00';
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+        
+        // 确保 stats 模块在数据加载前能显示“加载中...”状态
         function renderStats() {
-            if (!statsGrid) return;
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <div>${stat.name}</div>
@@ -284,57 +441,32 @@
             `).join('');
         }
         
-        /**
-         * 强制所有访客数据字段立即填充随机模拟值 (仅在初始化时调用)
-         */
-        function initializeVisitorData() {
-            const country = SIM_COUNTRIES[Math.floor(Math.random() * SIM_COUNTRIES.length)];
-            const city = SIM_CITIES[Math.floor(Math.random() * SIM_CITIES.length)];
-            const weather = SIM_WEATHERS[Math.floor(Math.random() * SIM_WEATHERS.length)];
-            const temp = (Math.random() * 25 + 10); // 10C to 35C
-
-            // 1. 设置 IP (立即更新)
-            const randomIP = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-            updateStatDisplay('ip', randomIP, false);
-            
-            // 2. 设置 国家/城市/天气/温度 (立即更新)
-            updateStatDisplay('country', country, false);
-            updateStatDisplay('city', city, false);
-            updateStatDisplay('temp', temp, false);
-            updateStatDisplay('weather', weather, false);
+        function renderCommands() {
+            commandList.innerHTML = initialCommands.map(cmd => {
+                let statusClass = '';
+                switch (cmd.status) {
+                    case 'COMPLETE': statusClass = 'status-complete'; break;
+                    case 'PENDING': statusClass = 'status-pending'; break;
+                    case 'ERROR': statusClass = 'status-error'; break;
+                    case 'ABORTED': statusClass = 'status-aborted'; break;
+                    default: statusClass = 'status-pending';
+                }
+                return `<div class="command-item"><span class="command-name">${cmd.name}</span><span class="command-status ${statusClass}">${cmd.status}</span></div>`;
+            }).join('');
         }
 
-        /**
-         * 随机更新部分访客数据 (在 setInterval 中调用)
-         */
-        function randomlyUpdateVisitorData() {
-            // IP 每秒更新
-            const randomIP = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-            updateStatDisplay('ip', randomIP, false);
-            
-            // 每 10 秒切换一次国家/城市/天气
-            if (Math.random() < 0.1) {
-                const country = SIM_COUNTRIES[Math.floor(Math.random() * SIM_COUNTRIES.length)];
-                const city = SIM_CITIES[Math.floor(Math.random() * SIM_CITIES.length)];
-                updateStatDisplay('country', country, false);
-                updateStatDisplay('city', city, false);
-            }
-            
-            // 温度随机波动
-            const currentTemp = parseFloat(initialStats.find(s => s.id === 'temp').value.replace(' °C', '')) || 20;
-            const newTemp = currentTemp + (Math.random() * 2 - 1); 
-            const finalTemp = Math.min(35, Math.max(10, newTemp));
-            updateStatDisplay('temp', finalTemp.toFixed(1), false);
-            
-            // 天气随机切换
-            if (Math.random() < 0.05) {
-                const weather = SIM_WEATHERS[Math.floor(Math.random() * SIM_WEATHERS.length)];
-                updateStatDisplay('weather', weather, false);
-            }
+        function updateCommands() {
+            initialCommands.forEach(cmd => {
+                const rand = Math.random();
+                if (cmd.status === 'PENDING') {
+                    if (rand < 0.3) { cmd.status = 'COMPLETE'; } 
+                    else if (rand > 0.9) { cmd.status = 'ERROR'; }
+                } else if (cmd.status === 'COMPLETE' || cmd.status === 'ERROR' || cmd.status === 'ABORTED') {
+                    if (rand > 0.8) { cmd.status = 'PENDING'; }
+                }
+            });
+            renderCommands();
         }
-        
-        function renderCommands() { /* ... 保持不变 ... */ }
-        function updateCommands() { /* ... 保持不变 ... */ }
 
         function updateStatDisplay(id, value, isError = false) { 
             const entry = initialStats.find(s => s.id === id);
@@ -344,68 +476,205 @@
                 const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
                 element.textContent = displayValue + entry.unit;
                 
-                // V24 强制样式修复：确保数据值始终发光
-                element.style.color = isError ? 'red' : 'var(--main-color)'; 
-                element.style.textShadow = isError ? '0 0 5px red' : 'var(--shadow-glow)';
+                if (isError) { element.style.color = 'red'; } 
+                else { element.style.color = 'var(--text-color)'; }
             }
         }
         
-        function generateRandomLog() { /* ... 保持不变 ... */ }
+        function generateRandomIP(internal = true) { return internal ? `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}` : `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`; }
+        function generateRandomPort() { return Math.floor(Math.random() * 60000) + 1024; }
+        function generateRandomHash() { return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase(); }
+        function generateRandomFileName() {
+            const names = ['config', 'backup', 'temp', 'log', 'image', 'db', 'user', 'main', 'script'];
+            const extensions = ['.dat', '.bin', '.tmp', '.json', '.sh', '.py', '.txt', '.enc'];
+            return `${names[Math.floor(Math.random() * names.length)]}_${generateRandomHash().substring(0, 4)}${extensions[Math.floor(Math.random() * extensions.length)]}`;
+        }
+
+        function generateRandomLog() {
+            const types = [
+                { type: 'SUCCESS', weight: 35, fn: () => Math.random() < 0.5 ? `系统核心进程 PID:${Math.floor(Math.random() * 9999)} 状态: 运行中` : `资源分配给 线程ID: 0x${generateRandomHash().substring(0, 8)} 状态: 完成` },
+                { type: 'INFO', weight: 25, fn: () => Math.random() < 0.6 ? `[连接] 建立与 ${generateRandomIP(false)}:${generateRandomPort()} 的外部连接` : `[文件] 文件 ${generateRandomFileName()} 校验成功。哈希: ${generateRandomHash()}` },
+                { type: 'WARNING', weight: 20, fn: () => `[警告] 内存使用率达到 95%。请释放资源!` },
+                { type: 'ATTEMPT', weight: 10, fn: () => `[尝试] 发现来自 ${generateRandomIP(false)} 端口 ${generateRandomPort()} 的未经授权访问尝试` },
+                { type: 'ERROR', weight: 5, fn: () => `[错误] 进程崩溃: 致命错误 0x${generateRandomHash().substring(0, 4)}` },
+                { type: 'DATA', weight: 5, fn: () => `[数据] 传输 ${Math.floor(Math.random() * 1000)} MB 数据包到内部服务器 ${generateRandomIP()}... 状态: 成功` }
+            ];
+
+            let totalWeight = types.reduce((sum, item) => sum + item.weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (const logType of types) {
+                random -= logType.weight;
+                if (random <= 0) {
+                    let logText = logType.fn();
+                    return { text: ` <${logType.type}> ${logText}`, class: logType.type.toLowerCase() };
+                }
+            }
+            return { text: ' <INFO> 系统状态正常', class: 'info' }; 
+        }
 
         function addLogEntry(manualLog = null) {
-            if (!logFeed) return;
-
             const now = new Date();
             const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             
             const log = manualLog || generateRandomLog(); 
             
             const newLog = document.createElement('div');
-            // 确保日志行样式正确
-            newLog.className = `log-line ${log.class}`; 
+            newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; 
             newLog.textContent = `[${timeString}]${log.text}`;
             
-            logFeed.insertBefore(newLog, logFeed.firstChild);
+            if (logFeed.firstChild) {
+                logFeed.insertBefore(newLog, logFeed.firstChild);
+            } else {
+                logFeed.appendChild(newLog);
+            }
 
             while (logFeed.children.length > 25) { 
                 logFeed.removeChild(logFeed.lastChild);
             }
         }
         
-        function initAudioPlayer() { /* ... 保持不变 ... */ }
-        function createParticles() { /* ... 保持不变 ... */ }
+        function fetchPublicIP() {
+            updateStatDisplay('ip', '查询中...');
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.ok ? response.json() : Promise.reject('IP API 查询失败'))
+                .then(data => {
+                    updateStatDisplay('ip', data.ip);
+                    fetchGeolocation(data.ip); 
+                })
+                .catch(error => {
+                    console.error("获取公网 IP 失败:", error);
+                    updateStatDisplay('ip', '错误: IP 不可用', true);
+                    updateStatDisplay('country', '无法定位', true);
+                    updateStatDisplay('city', '无法定位', true);
+                    updateStatDisplay('temp', 'N/A', true);
+                    updateStatDisplay('weather', 'N/A', true);
+                });
+        }
+
+        function fetchGeolocation(ip) {
+            updateStatDisplay('country', '定位中...');
+            updateStatDisplay('city', '定位中...');
+            
+            // 【已修复】确保使用 HTTPS 协议
+            const geoApiUrl = `https://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
+            
+            fetch(geoApiUrl)
+                .then(response => response.ok ? response.json() : Promise.reject('Geo API HTTP 错误'))
+                .then(data => {
+                    if (data.status === 'success') {
+                        const city = data.city || '未知城市';
+                        updateStatDisplay('country', data.country || '未知国家');
+                        updateStatDisplay('city', city);
+                        fetchWeather(city); 
+                    } else {
+                        updateStatDisplay('country', '查询失败', true);
+                        updateStatDisplay('city', data.message || 'API 错误', true);
+                        updateStatDisplay('temp', 'N/A', true);
+                        updateStatDisplay('weather', 'N/A', true);
+                    }
+                })
+                .catch(error => {
+                    console.error("获取地理位置失败:", error);
+                    updateStatDisplay('country', '网络错误', true);
+                    updateStatDisplay('city', '网络错误', true);
+                    updateStatDisplay('temp', 'N/A', true);
+                    updateStatDisplay('weather', 'N/A', true);
+                });
+        }
+        
+        function fetchWeather(city) {
+            updateStatDisplay('temp', '查询中...');
+            updateStatDisplay('weather', '查询中...');
+
+            const weatherApiUrl = `https://wttr.in/${city}?format=j1&lang=zh`;
+            
+            fetch(weatherApiUrl)
+                .then(response => response.ok ? response.json() : Promise.reject('Weather API 查询失败'))
+                .then(data => {
+                    if (data && data.current_condition && data.current_condition.length > 0) {
+                        const current = data.current_condition[0];
+                        const tempString = current.temp_C.replace('C', '').trim();
+                        const temp = parseFloat(tempString);
+                        const description = current.lang_zh[0].value || current.weatherDesc[0].value || '未知';
+                        
+                        updateStatDisplay('temp', temp);
+                        updateStatDisplay('weather', description);
+                    } else {
+                        updateStatDisplay('temp', '数据为空', true);
+                        updateStatDisplay('weather', '无法获取', true);
+                    }
+                })
+                .catch(error => {
+                    console.error("获取天气失败:", error);
+                    updateStatDisplay('temp', '查询错误', true);
+                    updateStatDisplay('weather', '查询错误', true);
+                });
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const numParticles = 70; 
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${Math.random() * 8 + 4}s`; 
+                particle.style.animationDelay = `-${Math.random() * 12}s`; 
+                particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
+                
+                container.appendChild(particle);
+            }
+        }
 
 
         // -----------------------
-        // 6. 强制初始化函数
+        // 5. 初始化和事件监听
         // -----------------------
-        function initializeConsole() {
-            // 渲染所有静态结构 (确保 ID 存在)
+        
+        function initAudioPlayer() {
+            audioPlayer.src = tracks[playerState.currentIndex].url;
+            audioPlayer.load();
+            
+            // 增强的事件监听器，用于调试
+            audioPlayer.addEventListener('ended', nextTrack);
+            audioPlayer.addEventListener('loadedmetadata', updatePlayerUI);
+            
+            audioPlayer.addEventListener('play', () => {
+                playerState.status = 'PLAYING';
+                updatePlayerUI();
+                addLogEntry({ text: ` <SUCCESS> 音频流: 播放状态已同步`, class: 'success' });
+            });
+            audioPlayer.addEventListener('pause', () => {
+                playerState.status = 'PAUSED';
+                updatePlayerUI();
+                addLogEntry({ text: ` <INFO> 音频流: 暂停状态已同步`, class: 'info' });
+            });
+            audioPlayer.addEventListener('error', (e) => {
+                playerState.status = 'ERROR';
+                updatePlayerUI();
+                console.error("Audio Load Error:", e);
+                addLogEntry({ text: ` <ERROR> 音频流: 加载失败! 请检查链接`, class: 'error' });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
             renderStats(); 
             renderCommands(); 
-            
-            // **【V25 修复点】** 强制初始化所有访客数据字段
-            initializeVisitorData();
-
-            // 初始化音频播放器
             initAudioPlayer();
+            
             renderPlayer(audioConsoleDesktop); 
             renderPlayer(audioConsoleMobile); 
             
-            // 启动粒子效果
             createParticles();
             
-            // 立即填充初始日志
-            addLogEntry({ text: ' <SUCCESS> 核心控制台已初始化', class: 'success' });
-            addLogEntry({ text: ' <INFO> 外部 API 访问受限，已切换至本地模拟数据模式 (V25)。', class: 'info' });
-            addLogEntry({ text: ' <DATA> 准备音频流 CDN 连接...', class: 'info' });
+            fetchPublicIP();
+            addLogEntry();
             
-            // 启动定时器
             setInterval(updateRandomData, 1000); 
-        }
+        });
 
-        // 立即调用初始化函数
-        initializeConsole();
     </script>
 </body>
 </html>
