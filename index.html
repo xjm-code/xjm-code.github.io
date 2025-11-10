@@ -3,295 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE DIGITAL GHOST | 数据核心</title>
+    <title>PROJECT: ZENITH // DATA CONSOLE</title>
     <style>
-        /* --- 1. CSS 变量与全局设置 --- */
+        /* ---------------------------------- */
+        /* 1. 全局样式和未来主义字体 */
+        /* ---------------------------------- */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
         :root {
-            --color-primary: #00ffff; /* 霓虹青色 */
-            --color-secondary: #00b3b3; 
-            --color-background: #000000;
-            --color-text: #e0e0e0;
-            --font-mono: 'Space Mono', 'Consolas', monospace;
+            --bg-color: #0d1117; /* 深蓝灰色背景 */
+            --main-color: #00ff99; /* 霓虹绿主色 */
+            --accent-color: #00aaff; /* 霓虹蓝强调色 */
+            --text-color: #e6e6e6;
+            --border-color: rgba(0, 255, 153, 0.3);
+            --shadow-glow: 0 0 5px var(--main-color), 0 0 10px var(--main-color);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: var(--font-mono);
-            background-color: var(--color-background);
-            color: var(--color-text);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+            font-family: 'Space Mono', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* 防止粒子溢出产生滚动条 */
         }
 
-        /* --- 2. 动态背景：数据网格 (Grid) --- */
-        #background-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            /* 模拟稀疏网格和粒子 */
-            background-image: 
-                radial-gradient(var(--color-secondary) 1px, transparent 0),
-                radial-gradient(var(--color-secondary) 1px, transparent 0);
-            background-size: 50px 50px;
-            background-position: 0 0, 25px 25px;
-            opacity: 0.1; /* 保持背景低调 */
-            animation: grid-flicker 10s infinite alternate;
+        /* ---------------------------------- */
+        /* 2. 容器和布局 */
+        /* ---------------------------------- */
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            padding: 30px;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 2fr 1fr; /* 左侧宽，右侧窄 */
+            z-index: 10;
         }
 
-        @keyframes grid-flicker {
-            0%, 100% { opacity: 0.1; }
-            50% { opacity: 0.15; }
-        }
-
-        /* --- 3. 鼠标跟随光标 (Cursor Glow) --- */
-        #cursor-glow {
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            background: var(--color-primary);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            mix-blend-mode: screen; /* 混合模式，产生炫光 */
-            filter: blur(80px);
-            opacity: 0;
-            transition: opacity 0.5s;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* --- 4. 整体布局与模块 (Sections) --- */
-        section {
-            padding: 10vh 5%;
-            min-height: 80vh;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
+        .main-panel {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: 20px;
         }
 
-        /* 标题和文字效果 */
-        h1, h2, h3 {
-            color: var(--color-primary);
-            text-shadow: 0 0 10px var(--color-primary), 0 0 5px var(--color-secondary);
-            text-transform: uppercase;
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* --- 5. 首页：终端欢迎 (Hero/Terminal Welcome) --- */
-        #hero {
-            min-height: 100vh;
-            text-align: center;
-        }
-
-        #hero h1 {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: data-type 2s steps(20, end) 1s forwards, terminal-cursor 1s infinite;
-            white-space: nowrap;
-            overflow: hidden;
-            border-right: 0.15em solid var(--color-primary);
-            width: 0;
-        }
-
-        @keyframes data-type {
-            to { width: 100%; }
-        }
-        @keyframes terminal-cursor {
-            from, to { border-color: transparent }
-            50% { border-color: var(--color-primary); }
-        }
-
-        .subtitle {
-            font-size: 1.5em;
-            opacity: 0;
-            animation: fade-in 1s forwards 3s;
-        }
-        
-        @keyframes fade-in {
-            to { opacity: 1; }
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 2px solid var(--color-primary);
-            width: 30px;
-            height: 50px;
-            border-radius: 20px;
-            cursor: pointer;
-            animation: pulse 2s infinite;
-        }
-        .scroll-indicator::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 10px;
-            background: var(--color-primary);
-            border-radius: 3px;
-            animation: scroll-move 1.5s infinite;
-        }
-
-        @keyframes scroll-move {
-            0%, 100% { transform: translate(-50%, 0); opacity: 1; }
-            50% { transform: translate(-50%, 15px); opacity: 0; }
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
-        }
-
-
-        /* --- 6. 关于我：数据块 (Data Block) --- */
-        .data-block {
-            padding: 30px;
-            margin: 20px 0;
-            border: 1px solid var(--color-secondary);
-            background: rgba(0, 179, 179, 0.05);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .data-block:hover {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-        }
-
-        .data-block::before {
-            content: attr(data-index);
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 5px 10px;
-            background: var(--color-primary);
-            color: var(--color-background);
-            font-size: 0.8em;
-            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%); /* 切角效果 */
-        }
-        
-        /* --- 7. 技能/项目：环绕光束 (Skills/Projects) --- */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .skill-item {
-            text-align: center;
+        /* ---------------------------------- */
+        /* 3. 霓虹和边框效果 */
+        /* ---------------------------------- */
+        .module {
+            background: rgba(13, 17, 23, 0.7);
+            border: 1px solid var(--border-color);
             padding: 20px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            position: relative;
-            transition: transform 0.3s;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 153, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        .skill-item:hover {
-            transform: scale(1.05);
-            background: rgba(0, 255, 255, 0.1);
+        /* 鼠标悬停交互 */
+        .module:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 255, 153, 0.4);
         }
 
-        .skill-item::before {
-            content: '';
+        h2 {
+            font-size: 1.5em;
+            color: var(--accent-color);
+            text-shadow: var(--shadow-glow);
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        /* ---------------------------------- */
+        /* 4. 仪表盘样式 */
+        /* ---------------------------------- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: rgba(0, 255, 153, 0.1);
+            padding: 10px;
+            border-left: 3px solid var(--main-color);
+        }
+
+        .stat-item h3 {
+            font-size: 0.9em;
+            color: var(--main-color);
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-color);
+            text-shadow: var(--shadow-glow);
+        }
+
+        /* ---------------------------------- */
+        /* 5. 进度条样式 */
+        /* ---------------------------------- */
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 5px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+            transition: width 0.8s ease-out;
+        }
+
+        .progress-item p {
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* ---------------------------------- */
+        /* 6. 活动日志样式 */
+        /* ---------------------------------- */
+        .log-feed {
+            height: 250px;
+            overflow-y: auto;
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            font-size: 0.85em;
+            line-height: 1.4;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .log-feed::-webkit-scrollbar {
+            width: 5px;
+        }
+        .log-feed::-webkit-scrollbar-thumb {
+            background: var(--main-color);
+        }
+
+        .log-line {
+            white-space: pre; /* 保留空格，模拟终端输出 */
+            color: var(--text-color);
+        }
+        .log-line.warning { color: yellow; }
+        .log-line.error { color: red; }
+        .log-line.success { color: var(--main-color); }
+
+        /* ---------------------------------- */
+        /* 7. 导航菜单样式 */
+        /* ---------------------------------- */
+        .nav-link {
+            display: block;
+            background: none;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* ---------------------------------- */
+        /* 8. 粒子背景动画 (酷炫狂屌部分) */
+        /* ---------------------------------- */
+        .particles {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            box-shadow: 0 0 30px var(--color-primary) inset;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .skill-item:hover::before {
-            opacity: 0.1;
-        }
-
-        /* --- 8. 底部：断线重连 (Footer) --- */
-        footer {
-            text-align: center;
-            padding: 50px 20px;
-            border-top: 1px solid var(--color-secondary);
-            font-size: 0.9em;
-            position: relative;
             overflow: hidden;
+            pointer-events: none; /* 确保不阻挡点击事件 */
+            z-index: 5;
         }
 
-        footer p {
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--main-color);
             opacity: 0.6;
-            transition: opacity 0.5s;
+            animation: move-particles linear infinite;
         }
-        footer:hover p {
-            opacity: 1;
+
+        /* 随机生成粒子位置和动画延迟 */
+        /* (JS 将会动态添加这些粒子) */
+
+        @keyframes move-particles {
+            0% { transform: translateY(0) scale(1); opacity: 0.6; }
+            100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
         }
 
     </style>
 </head>
 <body>
 
-    <div id="background-grid"></div>
+    <div class="particles" id="particle-container"></div>
 
-    <div id="cursor-glow"></div>
-
-    <section id="hero">
-        <h1 id="welcome-text">DATA CORE ONLINE</h1>
-        <p class="subtitle">>>> AGENT: DIGITAL GHOST INITIATED</p>
-        <p class="subtitle" style="animation-delay: 4s;">// READY FOR INTERACTION</p>
-        <a href="#about" class="scroll-indicator"></a>
-    </section>
-
-    <section id="about">
-        <h2 style="font-size: 2.5em;">// IDENTIFICATION_FILE: GHOST</h2>
-        <div class="data-block" data-index="01">
-            <h3>[PROFILE.ALIAS]</h3>
-            <p>我是一个致力于探索前端技术与视觉艺术的数字幽灵。我的存在是代码的集合，我的领域是网络空间。我擅长将数据转化为酷炫的互动体验。</p>
-        </div>
-        <div class="data-block" data-index="02">
-            <h3>[PROFILE.OBJECTIVE]</h3>
-            <p>目标是创建下一代沉浸式数字界面。追求极简主义美学与极致性能的完美平衡。如果你正在寻找一个能将想法具象化为动态代码的创造者，你找对人了。</p>
-        </div>
-        <div class="data-block" data-index="03">
-            <h3>[PROFILE.STATUS]</h3>
-            <p>当前状态：开放合作，寻求新的挑战。通过下面的网络矩阵联系我。</p>
-        </div>
-    </section>
-
-    <section id="skills">
-        <h2 style="font-size: 2.5em;">// CORE_CAPABILITIES: SKILLS</h2>
-        <div class="skills-grid">
-            <div class="skill-item">
-                <h3>HTML5 / CSS3</h3>
-                <p>99% Mastery. 擅长原生CSS动画与布局艺术。</p>
+    <div class="container">
+        
+        <div class="main-panel">
+            
+            <div class="module">
+                <h2>// CORE SYSTEM STATUS</h2>
+                <div class="stats-grid" id="stats-grid">
+                    </div>
             </div>
-            <div class="skill-item">
-                <h3>JavaScript / TypeScript</h3>
-                <p>精通现代框架，包括 React/Vue。</p>
-            </div>
-            <div class="skill-item">
-                <h3>VFX/Shaders</h3>
-                <p>具备 WebGL/Three.js 基础，能实现复杂的视觉特效。</p>
-            </div>
-            <div class="skill-item">
-                <h3>UI/UX Design</h3>
-                <p>遵循极简主义和功能至上的设计原则。</p>
-            </div>
-        </div>
-    </section>
 
-    <section id="contact">
-        <h2 style="font-size: 2.5em;">// NETWORK_MATRIX: CONNECT</h2>
-        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
-            <a href="#" style="color: var(--color-primary); font-size: 1.2em; text-decoration: none; border: 1px solid var(--color-secondary); padding: 10px 20px; transition: background 0.3s;" onmouseover="this.style.background='var(--color-secondary)'" onmouseout="this.style.background='transparent'">[GITHUB] > ACCESS</a>
-            <a href="#" style="color: var(--color-primary); font-size: 1.2em; text-decoration: none; border: 1px solid var(--color-secondary); padding: 10px 20px; transition: background 0.3s;" onmouseover="this.style.background='var(--color-secondary)'" onmouseout="this.style.background='transparent'">[LINKEDIN] > VIEW_PROFILE</a>
-            <a href="mailto:ghost@digital.com" style="color: var(--color-primary); font-size: 1.2em; text-decoration: none; border: 1px solid var(--color-secondary); padding: 10px 20px; transition: background 0.3s;" onmouseover="this.style.background='var(--color-secondary)'" onmouseout="this.style.background='transparent'">[EMAIL] > TRANSM
+            <div class="module">
+                <h2>// REAL-TIME ACTIVITY LOG</h2>
+                <div class="log-feed" id="log-feed">
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="side-panel">
+            
+            <div class="module">
+                <h2>// ACCESS TERMINAL</h2>
+                <a href="#profile" class="nav-link">\[ACCESS: PROFILE]</a>
+                <a href="#projects" class="nav-link">\[LOG: PROJECTS]</a>
+                <a href="#connect" class="nav-link">\[CONNECT: TERMINAL]</a>
+                <a href="#download" class="nav-link">\[DOWNLOAD: ASSETS]</a>
+            </div>
+
+            <div class="module">
+                <h2>// PROJECT DEPLOYMENT STATUS</h2>
+                <div id="progress-container">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // -----------------------
+        // 1. 初始数据模型
+        // -----------------------
+        const initialStats = [
+            { id: 'cpu', name: '处理器负载 (CPU Load)', value: 87.4, unit: '%', status: 'High Performance Mode' },
+            { id: 'mem', name: '内存使用率 (Memory Usage)', value: 12.08, unit: ' GB', status: 'Optimal' },
+            { id: 'ping', name: '网络延迟 (Ping Latency)', value: 4.5, unit: ' ms', status: 'Sub-Orbital Link' },
+            { id: 'temp', name: '能量核心温度 (Core Temp)', value: 62.3, unit: ' °C', status: 'Nominal Deviation' },
+        ];
+
+        const initialProjects = [
+            { name: 'Alpha-Nexus Deployment', progress: 92.1, status: 'Awaiting Final Authorization' },
+            { name: 'Quantum Pathfinding', progress: 45.8, status: 'Calculations in Progress' },
+            { name: 'Data Stream Intercept', progress: 100, status: 'Complete / Integrity: 99.999%' },
+            { name: 'Target Vector Analysis (TVA)', progress: 65.3, status: 'Optimizing Route Efficiency' },
+        ];
+        
+        const logs = [
+            ' <INFO> System Initializing... Status: SUCCESS',
+            ' <WARNING> Firewall Bypass Attempt Detected from IP: 192.168.4.21',
+            ' <EVENT> Resource Allocation for Sub-Routine 7 initiated. Status: SUCCESS',
+            ' <DATA> Encrypted Packet Signature Verified. Key Hash: 7A1C-4E0D-B9F2',
+            ' <USER> User \'Ghost_Pilot\' logged in from Sector 3. Access Level: Admin',
+            ' <ERROR> Database write failed. Retrying in 3 seconds.',
+            ' <SUCCESS> Data Integrity Check Complete. No anomalies detected.',
+        ];
+
+        const statsGrid = document.getElementById('stats-grid');
+        const progressContainer = document.getElementById('progress-container');
+        const logFeed = document.getElementById('log-feed');
+
+        // -----------------------
+        // 2. 渲染初始数据
+        // -----------------------
+
+        function renderStats() {
+            statsGrid.innerHTML = initialStats.map(stat => `
+                <div class="stat-item">
+                    <h3>${stat.name}</h3>
+                    <div class="stat-value" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+                    <p>${stat.status}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderProgress() {
+            progressContainer.innerHTML = initialProjects.map(project => `
+                <div class="progress-item">
+                    <h4>${project.name}</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${project.progress}%"></div>
+                    </div>
+                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
+                </div>
+            `).join('');
+        }
+
+        // -----------------------
+        // 3. 实时数据更新逻辑 (核心互动部分)
+        // -----------------------
+
+        function updateRandomData() {
+            // A. 更新系统状态 (随机波动)
+            initialStats.forEach(stat => {
+                let change = (Math.random() - 0.5) * 5; // -2.5 到 2.5 的随机变化
+                if (stat.id === 'ping') {
+                    change = (Math.random() - 0.5) * 1.5; // Ping变化小一点
+                    stat.value = Math.max(1.0, stat.value + change);
+                } else {
+                    stat.value = Math.max(10.0, Math.min(99.9, stat.value + change));
+                }
+                
+                const element = document.getElementById(`${stat.id}-value`);
+                if (element) {
+                    element.textContent = stat.value.toFixed(stat.id === 'mem' ? 2 : 1) + stat.unit;
+                }
+            });
+
+            // B. 更新项目进度 (随机推进)
+            const progressFills = progressContainer.querySelectorAll('.progress-fill');
+            const progressTexts = progressContainer.querySelectorAll('.progress-item p');
+
+            initialProjects.forEach((project, index) => {
+                if (project.progress < 100) {
+                    let increment = Math.random() * 3 + 0.1; // 0.1 到 3.1 的随机增长
+                    project.progress = Math.min(100, project.progress + increment);
+                    
+                    if(progressFills[index]) {
+                        progressFills[index].style.width = project.progress + '%';
+                    }
+                    if(progressTexts[index]) {
+                        progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
+                    }
+                }
+            });
+
+            // C. 实时添加活动日志
+            addLogEntry();
+        }
+
+        function addLogEntry() {
+            const now = new Date();
+            const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            const randomLog = logs[Math.floor(Math.random() * logs.length)];
+            
+            let logClass = '';
+            if (randomLog.includes('<WARNING>')) logClass = 'warning';
+            else if (randomLog.includes('<ERROR>')) logClass = 'error';
+            else if (randomLog.includes('<SUCCESS>')) logClass = 'success';
+            
+            const newLog = document.createElement('div');
+            newLog.className = `log-line ${logClass}`;
+            newLog.textContent = `[${timeString}]${randomLog}`;
+            
+            // 插入到顶部
+            if (logFeed.firstChild) {
+                logFeed.insertBefore(newLog, logFeed.firstChild);
+            } else {
+                logFeed.appendChild(newLog);
+            }
+
+            // 保持日志数量不超过 15 条
+            while (logFeed.children.length > 15) {
+                logFeed.removeChild(logFeed.lastChild);
+            }
+        }
+
+        // -----------------------
+        // 4. 粒子背景动画 (CSS 动画)
+        // -----------------------
+
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const numParticles = 50; 
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // 随机起始位置
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `-${Math.random() * 100}vh`; // 从顶部外开始
+                
+                // 随机动画时长和延迟
+                particle.style.animationDuration = `${Math.random() * 8 + 5}s`; // 5s to 13s
+                particle.style.animationDelay = `-${Math.random() * 10}s`; // 负延迟让粒子一开始就分散
+                
+                // 随机大小
+                const size = Math.random() * 3 + 1; // 1px to 4px
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // -----------------------
+        // 5. 初始化和循环
+        // -----------------------
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStats();
+            renderProgress();
+            createParticles();
+            
+            // 每 1.5 秒更新一次数据
+            setInterval(updateRandomData, 1500); 
+            // 立即添加第一条日志
+            addLogEntry();
+        });
+
+    </script>
+
+</body>
+</html>
