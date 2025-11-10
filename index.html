@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V7</title>
+    <title>项目: 访客追踪控制台 // V10</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 颜色、字体和布局 (与 V6 保持一致) */
+        /* 1. 颜色、字体和布局 (与 V9 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
@@ -63,7 +63,7 @@
             }
         }
         
-        /* 标题和 Glitch 效果 (保持不变) */
+        /* 标题和 Glitch 效果 */
         h1 {
             font-family: 'Audiowide', cursive;
             color: var(--main-color);
@@ -148,13 +148,30 @@
             white-space: normal;
         }
         
+        /* 实时活动日志样式 */
+        .log-feed {
+            height: clamp(200px, 35vh, 350px); 
+            overflow-y: scroll;
+            border: 2px solid var(--accent-color); 
+            background: rgba(0, 0, 0, 0.9);         
+            padding: 10px;
+            font-size: clamp(0.75em, 2vw, 0.9em);   
+            line-height: 1.5;
+            box-shadow: 0 0 10px rgba(153, 0, 255, 0.4); 
+            
+            &::-webkit-scrollbar { width: 5px; }
+            &::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
+        }
+        
+        .log-line.error { color: #ff5555; font-weight: bold; }
+        .log-line.success { color: #00ff99; } 
+
         /* 隐藏和显示控制 */
         .only-desktop { display: none; }
         @media (min-width: 768px) {
             .only-desktop { display: block; }
             .only-mobile { display: none; }
         }
-        /* 粒子背景和 Glitch 动画等 CSS 保持不变... */
     </style>
 </head>
 <body>
@@ -163,7 +180,7 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V7">项目: 访客追踪控制台 V7</h1>
+        <h1 data-text="项目: 访客追踪控制台 V10">项目: 访客追踪控制台 V10</h1>
 
         <div class="main-panel">
             
@@ -208,7 +225,7 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 - 访客数据
+        // 1. 初始数据模型 - 访客数据 
         // -----------------------
         
         function getDeviceInfo() {
@@ -238,6 +255,8 @@
             { id: 'ip', name: '接入 IP (公网)', value: '加载中...', unit: '' },
             { id: 'country', name: '国家/地区', value: '查询中...', unit: '' },
             { id: 'city', name: '城市', value: '查询中...', unit: '' },
+            { id: 'temp', name: '当地温度', value: '查询中...', unit: ' °C' }, 
+            { id: 'weather', name: '天气概况', value: '查询中...', unit: '' }, 
             { id: 'browser', name: '浏览器型号', value: deviceInfo.browser, unit: '' },
             { id: 'os', name: '操作系统', value: deviceInfo.os, unit: '' },
             { id: 'res', name: '屏幕分辨率', value: `${deviceInfo.screenW}x${deviceInfo.screenH}`, unit: ' 像素' },
@@ -269,54 +288,38 @@
         const logFeed = document.getElementById('log-feed');
 
         // -----------------------
-        // 2. 渲染初始数据
+        // 2. 渲染和通用工具
         // -----------------------
         function renderStats() {
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <h3>${stat.name}</h3>
-                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'country' || stat.id === 'city') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'country' || stat.id === 'city' || stat.id === 'temp') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
                 </div>
             `).join('');
         }
-
-        function renderProgress(container) {
-            if (!container) return; 
-            container.innerHTML = initialProjects.map(project => `
-                <div class="progress-item">
-                    <h4>${project.name}</h4>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${project.progress}%"></div>
-                    </div>
-                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
-                </div>
-            `).join('');
-        }
-
-        // -----------------------
-        // 3. IP 和地理位置获取逻辑
-        // -----------------------
         
-        /**
-         * 辅助函数：根据 ID 更新数据块的内容和值
-         */
         function updateStatDisplay(id, value, isError = false) {
             const entry = initialStats.find(s => s.id === id);
             const element = document.getElementById(`${id}-value`);
             if (entry && element) {
                 entry.value = value;
-                element.textContent = value + entry.unit;
+                // 对于温度值，保留两位小数
+                const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
+                element.textContent = displayValue + entry.unit;
+                
                 if (isError) {
                     element.style.color = 'red';
                 } else {
-                    element.style.color = 'var(--text-color)'; // 成功时恢复颜色
+                    element.style.color = 'var(--text-color)';
                 }
             }
         }
 
-        /**
-         * 步骤 1: 获取公网 IP
-         */
+        // -----------------------
+        // 3. IP, 地理位置和天气获取逻辑 (Wttr.in)
+        // -----------------------
+
         function fetchPublicIP() {
             updateStatDisplay('ip', '查询中...');
             
@@ -328,7 +331,6 @@
                 .then(data => {
                     const ip = data.ip;
                     updateStatDisplay('ip', ip);
-                    // 成功获取 IP 后，立即进行地理位置查询
                     fetchGeolocation(ip); 
                 })
                 .catch(error => {
@@ -336,17 +338,16 @@
                     updateStatDisplay('ip', '错误: IP 不可用', true);
                     updateStatDisplay('country', '无法定位', true);
                     updateStatDisplay('city', '无法定位', true);
+                    updateStatDisplay('temp', 'N/A', true);
+                    updateStatDisplay('weather', 'N/A', true);
                 });
         }
 
-        /**
-         * 步骤 2: 根据 IP 获取地理位置
-         */
         function fetchGeolocation(ip) {
             updateStatDisplay('country', '定位中...');
             updateStatDisplay('city', '定位中...');
             
-            // 使用 ip-api.com 的公共免费 API，限制 45 次/分钟
+            // 使用 ip-api.com 的公共免费 API (获取城市名)
             const geoApiUrl = `http://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
             
             fetch(geoApiUrl)
@@ -356,30 +357,70 @@
                 })
                 .then(data => {
                     if (data.status === 'success') {
+                        const city = data.city || '未知城市';
                         updateStatDisplay('country', data.country || '未知国家');
-                        updateStatDisplay('city', data.city || '未知城市');
+                        updateStatDisplay('city', city);
+                        
+                        // 成功获取城市后，获取天气
+                        fetchWeather(city); 
+
                     } else {
-                        // API 限制或查询失败
                         updateStatDisplay('country', '查询失败', true);
                         updateStatDisplay('city', data.message || 'API 错误', true);
+                        updateStatDisplay('temp', 'N/A', true);
+                        updateStatDisplay('weather', 'N/A', true);
                     }
                 })
                 .catch(error => {
                     console.error("获取地理位置失败:", error);
                     updateStatDisplay('country', '网络错误', true);
                     updateStatDisplay('city', '网络错误', true);
+                    updateStatDisplay('temp', 'N/A', true);
+                    updateStatDisplay('weather', 'N/A', true);
+                });
+        }
+        
+        // 使用 Wttr.in API (免费，无需 Key)
+        function fetchWeather(city) {
+            updateStatDisplay('temp', '查询中...');
+            updateStatDisplay('weather', '查询中...');
+
+            // Wttr.in JSON API: 城市名, 语言设为 zh, 输出 JSON
+            const weatherApiUrl = `https://wttr.in/${city}?format=j1&lang=zh`;
+            
+            fetch(weatherApiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Weather API 查询失败');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.current_condition && data.current_condition.length > 0) {
+                        const current = data.current_condition[0];
+                        // Wttr.in 返回的温度是字符串，且带单位，这里需要清理
+                        const tempString = current.temp_C.replace('C', '').trim();
+                        const temp = parseFloat(tempString);
+                        const description = current.lang_zh[0].value || current.weatherDesc[0].value || '未知';
+                        
+                        updateStatDisplay('temp', temp);
+                        updateStatDisplay('weather', description);
+                    } else {
+                        updateStatDisplay('temp', '数据为空', true);
+                        updateStatDisplay('weather', '无法获取', true);
+                    }
+                })
+                .catch(error => {
+                    console.error("获取天气失败:", error);
+                    updateStatDisplay('temp', '查询错误', true);
+                    updateStatDisplay('weather', '查询错误', true);
                 });
         }
 
 
         // -----------------------
-        // 4. 实时数据更新逻辑
+        // 4. 实时数据更新逻辑 (保持不变)
         // -----------------------
 
         function updateRandomData() {
-            // 只需要更新时间戳和进度条
-            
-            // 更新时间戳
             updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
 
             // 进度条更新 (保持模拟)
@@ -397,7 +438,6 @@
                             progressFills[index].style.width = project.progress + '%';
                         }
                         if(progressTexts[index]) {
-                            // 确保此处中文内容也是更新后的
                             progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
                         }
                     }
@@ -407,16 +447,27 @@
             addLogEntry();
         }
 
-        // Log feed 保持不变
+        function renderProgress(container) {
+            if (!container) return; 
+            container.innerHTML = initialProjects.map(project => `
+                <div class="progress-item">
+                    <h4>${project.name}</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${project.progress}%"></div>
+                    </div>
+                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
+                </div>
+            `).join('');
+        }
+
         function addLogEntry() {
             const now = new Date();
-            // 使用中文时间格式
             const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             const randomLog = logs[Math.floor(Math.random() * logs.length)];
             
             let logClass = '';
-            if (randomLog.includes('<尝试>') || randomLog.includes('<错误>')) logClass = 'error'; // 尝试和错误使用红色
-            else if (randomLog.includes('<信息>') || randomLog.includes('<事件>') || randomLog.includes('<用户>') || randomLog.includes('<数据>') || randomLog.includes('<成功>') || randomLog.includes('<调试>')) logClass = 'success'; // 其他使用绿色
+            if (randomLog.includes('<尝试>') || randomLog.includes('<错误>')) logClass = 'error';
+            else logClass = 'success';
             
             const newLog = document.createElement('div');
             newLog.className = `log-line ${logClass}`;
@@ -433,7 +484,6 @@
             }
         }
 
-        // 粒子背景和 Glitch 动画 (保持不变)
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -446,7 +496,6 @@
                 particle.style.animationDelay = `-${Math.random() * 12}s`; 
                 particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
                 
-                // 保持粒子颜色与主色调一致 (CSS中已设置)
                 container.appendChild(particle);
             }
         }
@@ -461,10 +510,7 @@
             renderProgress(progressContainerMobile);
             createParticles();
             
-            // 步骤 1: 启动 IP 和定位查询
             fetchPublicIP();
-
-            // 步骤 2: 启动随机数据更新 (每秒一次)
             setInterval(updateRandomData, 1000); 
             addLogEntry();
         });
