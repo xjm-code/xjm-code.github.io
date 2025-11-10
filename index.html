@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT: NEON-MATRIX // ZENITH CONSOLE V4</title>
+    <title>PROJECT: VISITOR TRACKER // ACCESS LOG V5</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 全局样式和未来主义字体 - 颜色修改 */
+        /* 1. 全局样式和未来主义字体 - 颜色和布局 */
+        /* (与 V4 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
             --bg-color: #000000;
-            --main-color: #ff9900;     /* 霓虹橙 - 新主色 */
-            --accent-color: #9900ff;   /* 紫罗兰/品红 - 新强调色 */
+            --main-color: #ff9900;     /* 霓虹橙 - 主色 */
+            --accent-color: #9900ff;   /* 紫罗兰/品红 - 强调色 */
             --text-color: #ffe8cc;
             --border-color: rgba(255, 153, 0, 0.4);
             --shadow-glow: 0 0 5px var(--main-color), 0 0 15px var(--main-color), 0 0 25px rgba(255, 153, 0, 0.6);
@@ -37,9 +38,7 @@
             padding-top: 20px;
         }
         
-        /* ---------------------------------- */
-        /* 2. 布局 (Mobile First) */
-        /* ---------------------------------- */
+        /* 响应式布局 - Mobile First */
         .container {
             width: 95%;
             max-width: 1600px;
@@ -63,28 +62,20 @@
                 padding: 40px;
                 gap: 25px;
             }
-            body {
-                align-items: center;
-            }
         }
-
-        /* ---------------------------------- */
-        /* 3. 字体和标题 (更强的 Glitch 效果) */
-        /* ---------------------------------- */
+        
+        /* 标题和 Glitch 效果 (V4 保持不变) */
         h1 {
             font-family: 'Audiowide', cursive;
             color: var(--main-color);
             text-align: center;
             font-size: clamp(1.8em, 5vw, 4em); 
             margin-bottom: 20px;
-            /* 增强主标题的光晕效果 */
             text-shadow: 0 0 10px var(--main-color), 0 0 20px var(--main-color);
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             position: relative;
         }
-        
-        /* Glitch 效果的伪元素 */
         h1:before, h1:after {
             content: attr(data-text);
             position: absolute;
@@ -95,52 +86,41 @@
             text-shadow: 0 0 5px var(--accent-color);
             clip: rect(0, 0, 0, 0);
         }
-
         h1:after {
             left: 2px;
             text-shadow: -1px 0 var(--main-color);
             animation: glitch-after 2s infinite alternate-reverse;
         }
-
         h1:before {
             left: -2px;
             text-shadow: 1px 0 var(--accent-color);
             animation: glitch-before 3s infinite alternate-reverse;
         }
-        
         @keyframes glitch-before {
             0% { clip: rect(20px, 9999px, 80px, 0); transform: translate(4px, 0); }
-            30% { clip: rect(60px, 9999px, 120px, 0); transform: translate(-4px, 0); }
-            60% { clip: rect(10px, 9999px, 50px, 0); transform: translate(3px, 0); }
             100% { clip: rect(70px, 9999px, 110px, 0); transform: translate(-2px, 0); }
         }
-
         @keyframes glitch-after {
             0% { clip: rect(40px, 9999px, 100px, 0); transform: translate(-2px, 0); }
-            40% { clip: rect(50px, 9999px, 110px, 0); transform: translate(5px, 0); }
-            80% { clip: rect(90px, 9999px, 130px, 0); transform: translate(-3px, 0); }
             100% { clip: rect(30px, 9999px, 70px, 0); transform: translate(1px, 0); }
         }
 
 
         h2 {
             font-size: clamp(1.1em, 2.5vw, 1.3em);
-            color: var(--accent-color); /* H2使用强调色 */
+            color: var(--accent-color);
             text-shadow: 0 0 5px var(--accent-color);
             margin-bottom: 10px;
             padding-bottom: 5px;
             border-bottom: 1px dashed rgba(255, 0, 255, 0.2);
         }
         
-        /* ---------------------------------- */
-        /* 4. 模块和霓虹样式 */
-        /* ---------------------------------- */
+        /* 模块样式 */
         .module {
             background: rgba(13, 17, 23, 0.6);
             border: 1px solid var(--border-color);
             padding: 15px;
             border-radius: 6px;
-            box-shadow: 0 0 15px rgba(255, 153, 0, 0.2);
             filter: drop-shadow(0 0 3px var(--main-color));
             transition: transform 0.3s ease-out, box-shadow 0.3s, filter 0.3s;
         }
@@ -152,72 +132,35 @@
         }
 
         /* ---------------------------------- */
-        /* 5. 仪表盘和数据值样式 */
+        /* 2. 访问者数据面板样式 */
         /* ---------------------------------- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            /* 适配手机上的三列布局 */
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
             gap: 10px;
         }
 
         .stat-item {
             padding: 10px;
             border-left: 3px solid var(--main-color);
+            /* 针对 IP 和 Location 的特殊样式 */
+            word-break: break-word; 
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         
         .stat-value {
             font-family: 'Audiowide', cursive;
-            font-size: clamp(1.4em, 3vw, 2em);
+            font-size: clamp(0.9em, 3vw, 1.3em); /* 数据值调小，以便容纳长字符串 */
             font-weight: 700;
             color: var(--text-color);
             text-shadow: var(--shadow-glow);
+            white-space: normal; /* 允许换行 */
         }
         
-        /* ---------------------------------- */
-        /* 6. 粒子背景 (改为橙色/黄色调) */
-        /* ---------------------------------- */
-        .particle {
-            background: linear-gradient(to bottom, rgba(255, 153, 0, 0.8), rgba(255, 153, 0, 0));
-            opacity: 0.6;
-            animation: code-rain linear infinite;
-        }
-
-        /* ---------------------------------- */
-        /* 7. 进度条颜色 */
-        /* ---------------------------------- */
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-            transition: width 0.8s ease-out;
-        }
-
-        /* ---------------------------------- */
-        /* 其他样式保持 V3 的响应式和功能不变 */
-        /* ---------------------------------- */
-        .log-feed {
-            height: clamp(200px, 35vh, 350px); 
-            overflow-y: scroll;
-            border: 1px dashed var(--accent-color);
-            padding: 10px;
-            font-size: clamp(0.7em, 2vw, 0.85em);
-            line-height: 1.6;
-            background: rgba(0, 0, 0, 0.7);
-            &::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
-        }
-        
-        .nav-link {
-            border: 2px solid var(--accent-color);
-            color: var(--accent-color);
-            text-shadow: 0 0 5px var(--accent-color);
-        }
-
-        .nav-link:hover {
-            background: var(--accent-color);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px var(--accent-color);
-        }
-        
+        /* 隐藏和显示控制 */
         .only-desktop { display: none; }
         @media (min-width: 768px) {
             .only-desktop { display: block; }
@@ -231,12 +174,12 @@
 
     <div class="container">
         
-        <h1 data-text="PROJECT: NEON-MATRIX // ZENITH CONSOLE V4">PROJECT: NEON-MATRIX // ZENITH CONSOLE V4</h1>
+        <h1 data-text="PROJECT: VISITOR TRACKER // ACCESS LOG V5">PROJECT: VISITOR TRACKER // ACCESS LOG V5</h1>
 
         <div class="main-panel">
             
             <div class="module">
-                <h2>// CORE SYSTEM STATUS (INTERACTIVE)</h2>
+                <h2>// VISITOR DATA TRACKING (REAL-TIME)</h2>
                 <div class="stats-grid" id="stats-grid">
                     </div>
             </div>
@@ -276,15 +219,52 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 - 新增数据模块
+        // 1. 初始数据模型 - 访问者数据
         // -----------------------
+        
+        // 真实获取设备信息
+        function getDeviceInfo() {
+            const screenW = window.screen.width;
+            const screenH = window.screen.height;
+            const os = navigator.platform;
+            let browser = 'Unknown';
+            const userAgent = navigator.userAgent;
+
+            if (userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edge") === -1) {
+                browser = "Chrome";
+            } else if (userAgent.indexOf("Firefox") > -1) {
+                browser = "Firefox";
+            } else if (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1) {
+                browser = "Safari";
+            } else if (userAgent.indexOf("Edge") > -1) {
+                browser = "Edge";
+            }
+            
+            return { screenW, screenH, os, browser };
+        }
+
+        // 模拟生成 IP 地址和国家/地区
+        function generateRandomIP() {
+            return Array(4).fill(0).map(() => Math.floor(Math.random() * 255) + 1).join('.');
+        }
+        
+        function generateRandomLocation() {
+            const cities = ['Shenzhen', 'New York', 'London', 'Tokyo', 'Berlin', 'Dubai', 'Sydney'];
+            const countries = ['China', 'USA', 'UK', 'Japan', 'Germany', 'UAE', 'Australia'];
+            const city = cities[Math.floor(Math.random() * cities.length)];
+            const country = countries[Math.floor(Math.random() * countries.length)];
+            return `${city}, ${country}`;
+        }
+
+        const deviceInfo = getDeviceInfo();
+
         const initialStats = [
-            { id: 'cpu', name: '处理器负载 (CPU Load)', value: 87.4, unit: '%', status: 'High Performance Mode' },
-            { id: 'mem', name: '内存使用率 (Memory Usage)', value: 12.08, unit: ' GB', status: 'Optimal' },
-            { id: 'ping', name: '网络延迟 (Ping Latency)', value: 4.5, unit: ' ms', status: 'Sub-Orbital Link' },
-            { id: 'temp', name: '核心温度 (Core Temp)', value: 62.3, unit: ' °C', status: 'Nominal Deviation' },
-            { id: 'key', name: '加密密钥状态 (Key Status)', value: 128, unit: ' bit', status: 'AES-256 Active' },
-            { id: 'dist', name: '行星距离 (Mars Dist)', value: 5.54, unit: ' AU', status: 'Trajectory Confirmed' },
+            { id: 'ip', name: '接入 IP (Simulated)', value: generateRandomIP(), unit: '' },
+            { id: 'browser', name: '浏览器型号 (Client)', value: deviceInfo.browser, unit: '' },
+            { id: 'os', name: '操作系统 (OS)', value: deviceInfo.os, unit: '' },
+            { id: 'res', name: '屏幕分辨率 (Resolution)', value: `${deviceInfo.screenW}x${deviceInfo.screenH}`, unit: '' },
+            { id: 'location', name: '地理位置 (Simulated)', value: generateRandomLocation(), unit: '' },
+            { id: 'access', name: '访问时间 (Timestamp)', value: new Date().toLocaleTimeString(), unit: '' },
         ];
 
         const initialProjects = [
@@ -296,10 +276,10 @@
         
         const logs = [
             ' <INFO> System Initializing... Status: SUCCESS',
-            ' <WARNING> Firewall Bypass Attempt Detected from IP: 192.168.4.21',
+            ' <ATTEMPT> Unauthorized probe detected from IP: 101.55.2.145',
             ' <EVENT> Resource Allocation for Sub-Routine 7 initiated. Status: SUCCESS',
             ' <DATA> Encrypted Packet Signature Verified. Key Hash: 7A1C-4E0D-B9F2',
-            ' <USER> User \'Ghost_Pilot\' logged in from Sector 3. Access Level: Admin',
+            ' <USER> New connection established: Tracking ID 89B-G4-C0DE',
             ' <ERROR> Database write failed. Retrying in 3 seconds.',
             ' <SUCCESS> Data Integrity Check Complete. No anomalies detected.',
             ' <DEBUG> Memory cleanup routine completed. 4.5GB recovered.'
@@ -318,13 +298,14 @@
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <h3>${stat.name}</h3>
-                    <div class="stat-value ${(stat.id === 'cpu' || stat.id === 'key') ? 'glitch' : ''}" id="${stat.id}-value">${stat.id === 'key' ? stat.value.toFixed(0) : stat.value.toFixed(stat.id === 'mem' ? 2 : 1)}${stat.unit}</div>
+                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'location') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
                 </div>
             `).join('');
         }
 
         function renderProgress(container) {
             if (!container) return; 
+            // 渲染逻辑与 V4 保持不变
             container.innerHTML = initialProjects.map(project => `
                 <div class="progress-item">
                     <h4>${project.name}</h4>
@@ -341,35 +322,30 @@
         // -----------------------
 
         function updateRandomData() {
+            // 只有模拟数据才更新
             initialStats.forEach(stat => {
-                let change = (Math.random() - 0.5) * 5; 
-                
-                if (stat.id === 'ping') {
-                    change = (Math.random() - 0.5) * 1.5; 
-                    stat.value = Math.max(1.0, stat.value + change);
-                } else if (stat.id === 'temp') {
-                    change = (Math.random() - 0.5) * 1.0;
-                    stat.value = Math.max(50.0, stat.value + change);
-                } else if (stat.id === 'key') {
-                    // Key Status 波动小且离散
-                    change = Math.random() > 0.9 ? (Math.random() > 0.5 ? 64 : -64) : 0;
-                    stat.value = Math.max(64, Math.min(256, stat.value + change));
-                } else if (stat.id === 'dist') {
-                    change = (Math.random() - 0.5) * 0.05; // 距离波动极小
-                    stat.value = Math.max(0.3, stat.value + change);
-                }
-                else {
-                    stat.value = Math.max(10.0, Math.min(99.9, stat.value + change));
+                if (stat.id === 'ip') {
+                    // 每秒有 10% 的概率切换 IP
+                    if (Math.random() < 0.1) {
+                        stat.value = generateRandomIP();
+                    }
+                } else if (stat.id === 'location') {
+                    // 每秒有 5% 的概率切换地点
+                     if (Math.random() < 0.05) {
+                        stat.value = generateRandomLocation();
+                    }
+                } else if (stat.id === 'access') {
+                    // 实时更新时间戳
+                    stat.value = new Date().toLocaleTimeString();
                 }
                 
                 const element = document.getElementById(`${stat.id}-value`);
                 if (element) {
-                    element.textContent = stat.id === 'key' 
-                        ? stat.value.toFixed(0) + stat.unit
-                        : stat.value.toFixed(stat.id === 'mem' ? 2 : 1) + stat.unit;
+                    element.textContent = stat.value + stat.unit;
                 }
             });
 
+            // 进度条更新 (保持模拟)
             [progressContainerDesktop, progressContainerMobile].forEach(container => {
                 if (!container) return;
                 const progressFills = container.querySelectorAll('.progress-fill');
@@ -393,16 +369,16 @@
             addLogEntry();
         }
 
+        // Log feed 保持不变
         function addLogEntry() {
             const now = new Date();
             const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             const randomLog = logs[Math.floor(Math.random() * logs.length)];
             
             let logClass = '';
-            if (randomLog.includes('<WARNING>')) logClass = 'warning';
+            if (randomLog.includes('<WARNING>') || randomLog.includes('<ATTEMPT>')) logClass = 'warning';
             else if (randomLog.includes('<ERROR>')) logClass = 'error';
-            else if (randomLog.includes('<SUCCESS>')) logClass = 'success';
-            else if (randomLog.includes('<INFO>') || randomLog.includes('<EVENT>')) logClass = 'success';
+            else if (randomLog.includes('<SUCCESS>') || randomLog.includes('<INFO>') || randomLog.includes('<EVENT>') || randomLog.includes('<USER>')) logClass = 'success';
             
             const newLog = document.createElement('div');
             newLog.className = `log-line ${logClass}`;
@@ -419,9 +395,7 @@
             }
         }
 
-        // -----------------------
-        // 4. 粒子/代码雨动画
-        // -----------------------
+        // 粒子背景和 Glitch 动画 (保持不变)
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -430,10 +404,8 @@
                 particle.className = 'particle';
                 
                 particle.style.left = `${Math.random() * 100}vw`;
-                
                 particle.style.animationDuration = `${Math.random() * 8 + 4}s`; 
                 particle.style.animationDelay = `-${Math.random() * 12}s`; 
-                
                 particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
 
                 container.appendChild(particle);
@@ -441,7 +413,7 @@
         }
 
         // -----------------------
-        // 5. 初始化和循环
+        // 4. 初始化和循环
         // -----------------------
         document.addEventListener('DOMContentLoaded', () => {
             renderStats();
@@ -449,7 +421,8 @@
             renderProgress(progressContainerMobile);
             createParticles();
             
-            setInterval(updateRandomData, 1200); 
+            // 数据更新频率提高到每秒一次 (1000ms)
+            setInterval(updateRandomData, 1000); 
             addLogEntry();
         });
 
