@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V12 (精简模式)</title>
+    <title>项目: 访客追踪控制台 // V13 (替换侧边栏)</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 颜色、字体和布局 (与 V11 保持一致) */
+        /* 1. 颜色、字体和布局 (与 V12 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
@@ -164,10 +164,43 @@
             &::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
         }
         
-        /* 增加警告色日志样式 */
+        /* 日志颜色 */
         .log-line.error { color: #ff5555; font-weight: bold; }
         .log-line.success { color: #00ff99; } 
         .log-line.warning { color: var(--warning-color); } 
+
+        /* ---------------------------------- */
+        /* 2. 目标追踪指令样式 (新增) */
+        /* ---------------------------------- */
+        .command-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9em;
+            border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
+        }
+        .command-name {
+            color: var(--text-color);
+            flex-grow: 1;
+        }
+        .command-status {
+            font-weight: bold;
+            text-align: right;
+            padding-left: 10px;
+            font-family: 'Audiowide', cursive;
+        }
+        
+        /* 状态颜色 */
+        .status-complete { color: #00ff99; text-shadow: 0 0 3px #00ff99; }
+        .status-pending { color: var(--main-color); text-shadow: 0 0 3px var(--main-color); }
+        .status-error { color: #ff5555; text-shadow: 0 0 3px #ff5555; }
+        .status-aborted { color: #ff00ff; text-shadow: 0 0 3px #ff00ff; } /* 紫色表示中止 */
+
 
         /* 隐藏和显示控制 */
         .only-desktop { display: none; }
@@ -183,7 +216,7 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V12">项目: 访客追踪控制台 V12</h1>
+        <h1 data-text="项目: 访客追踪控制台 V13">项目: 访客追踪控制台 V13</h1>
 
         <div class="main-panel">
             
@@ -210,11 +243,9 @@
         <div class="side-panel">
             
             <div class="module">
-                <h2>// 访问终端 (导航)</h2>
-                <a href="#profile" class="nav-link">\[访问: 用户信息]</a>
-                <a href="#projects" class="nav-link">\[日志: 项目]</a>
-                <a href="#connect" class="nav-link">\[连接: 终端]</a>
-                <a href="#download" class="nav-link">\[下载: 资产]</a>
+                <h2>// 目标追踪指令</h2>
+                <div class="command-list" id="command-list">
+                    </div>
             </div>
 
             <div class="module only-desktop">
@@ -228,10 +259,8 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 (已精简)
+        // 1. 初始数据模型 (保持精简)
         // -----------------------
-        
-        // ⚠️ 注意: 移除了 getDeviceInfo() 及其相关数据
         
         const initialStats = [
             { id: 'ip', name: '接入 IP (公网)', value: '加载中...', unit: '' },
@@ -249,10 +278,19 @@
             { name: '目标向量分析', progress: 65.3, status: '优化路径效率' },
         ];
         
+        const initialCommands = [
+            { id: 'cmd001', name: '\[CMD-001] 链路加密验证', status: 'COMPLETE' },
+            { id: 'cmd002', name: '\[CMD-002] 访客权限评估', status: 'PENDING' },
+            { id: 'cmd003', name: '\[CMD-003] 数据包深度解析', status: 'COMPLETE' },
+            { id: 'cmd004', name: '\[CMD-004] 端口指纹采集', status: 'PENDING' },
+            { id: 'cmd005', name: '\[CMD-005] 侧信道扫描', status: 'ABORTED' },
+        ];
+
         const statsGrid = document.getElementById('stats-grid');
         const progressContainerDesktop = document.getElementById('progress-container-desktop');
         const progressContainerMobile = document.getElementById('progress-container-mobile');
         const logFeed = document.getElementById('log-feed');
+        const commandList = document.getElementById('command-list');
         
         // -----------------------
         // 2. 随机数据生成函数 
@@ -280,7 +318,7 @@
         }
         
         // -----------------------
-        // 3. 实时活动日志数据源 (与 V11 保持一致)
+        // 3. 实时活动日志数据源 
         // -----------------------
         function generateRandomLog() {
             const types = [
@@ -306,10 +344,9 @@
         }
 
         // -----------------------
-        // 4. 渲染和通用工具
+        // 4. 渲染函数
         // -----------------------
         function renderStats() {
-            // 只需要渲染 initialStats 中当前存在的项
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <h3>${stat.name}</h3>
@@ -317,6 +354,89 @@
                 </div>
             `).join('');
         }
+        
+        function renderCommands() {
+            commandList.innerHTML = initialCommands.map(cmd => {
+                let statusClass = '';
+                switch (cmd.status) {
+                    case 'COMPLETE':
+                        statusClass = 'status-complete';
+                        break;
+                    case 'PENDING':
+                        statusClass = 'status-pending';
+                        break;
+                    case 'ERROR':
+                        statusClass = 'status-error';
+                        break;
+                    case 'ABORTED':
+                        statusClass = 'status-aborted';
+                        break;
+                    default:
+                        statusClass = 'status-pending';
+                }
+                return `
+                    <div class="command-item">
+                        <span class="command-name">${cmd.name}</span>
+                        <span class="command-status ${statusClass}">${cmd.status}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // -----------------------
+        // 5. 实时数据更新逻辑
+        // -----------------------
+
+        function updateCommands() {
+            // 随机更新指令状态，使侧边栏看起来是动态的
+            initialCommands.forEach(cmd => {
+                const rand = Math.random();
+                if (cmd.status === 'PENDING') {
+                    if (rand < 0.3) { // 30% 几率完成
+                        cmd.status = 'COMPLETE';
+                    } else if (rand > 0.9) { // 10% 几率出错
+                        cmd.status = 'ERROR';
+                    }
+                } else if (cmd.status === 'COMPLETE' || cmd.status === 'ERROR' || cmd.status === 'ABORTED') {
+                    if (rand > 0.8) { // 20% 几率重置为 PENDING
+                        cmd.status = 'PENDING';
+                    }
+                }
+            });
+            renderCommands();
+        }
+
+        function updateRandomData() {
+            updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
+            updateCommands(); // 新增：更新指令状态
+
+            // 进度条更新
+            [progressContainerDesktop, progressContainerMobile].forEach(container => {
+                if (!container) return;
+                const progressFills = container.querySelectorAll('.progress-fill');
+                const progressTexts = container.querySelectorAll('.progress-item p');
+
+                initialProjects.forEach((project, index) => {
+                    if (project.progress < 100) {
+                        let increment = Math.random() * 3 + 0.1; 
+                        project.progress = Math.min(100, project.progress + increment);
+                        
+                        if(progressFills[index]) {
+                            progressFills[index].style.width = project.progress + '%';
+                        }
+                        if(progressTexts[index]) {
+                            progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
+                        }
+                    }
+                });
+            });
+
+            addLogEntry();
+        }
+        
+        // -----------------------
+        // 6. API 和辅助函数 (保持不变)
+        // -----------------------
         
         function updateStatDisplay(id, value, isError = false) {
             const entry = initialStats.find(s => s.id === id);
@@ -354,49 +474,15 @@
                 logFeed.removeChild(logFeed.lastChild);
             }
         }
-        
-        // -----------------------
-        // 5. 实时数据更新和 API 逻辑 (与 V11 保持一致)
-        // -----------------------
-
-        function updateRandomData() {
-            updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
-
-            [progressContainerDesktop, progressContainerMobile].forEach(container => {
-                if (!container) return;
-                const progressFills = container.querySelectorAll('.progress-fill');
-                const progressTexts = container.querySelectorAll('.progress-item p');
-
-                initialProjects.forEach((project, index) => {
-                    if (project.progress < 100) {
-                        let increment = Math.random() * 3 + 0.1; 
-                        project.progress = Math.min(100, project.progress + increment);
-                        
-                        if(progressFills[index]) {
-                            progressFills[index].style.width = project.progress + '%';
-                        }
-                        if(progressTexts[index]) {
-                            progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
-                        }
-                    }
-                });
-            });
-
-            addLogEntry();
-        }
 
         function fetchPublicIP() {
             updateStatDisplay('ip', '查询中...');
             
             fetch('https://api.ipify.org?format=json')
-                .then(response => {
-                    if (!response.ok) throw new Error('IP API 查询失败');
-                    return response.json();
-                })
+                .then(response => response.ok ? response.json() : Promise.reject('IP API 查询失败'))
                 .then(data => {
-                    const ip = data.ip;
-                    updateStatDisplay('ip', ip);
-                    fetchGeolocation(ip); 
+                    updateStatDisplay('ip', data.ip);
+                    fetchGeolocation(data.ip); 
                 })
                 .catch(error => {
                     console.error("获取公网 IP 失败:", error);
@@ -415,10 +501,7 @@
             const geoApiUrl = `http://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
             
             fetch(geoApiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Geo API HTTP 错误');
-                    return response.json();
-                })
+                .then(response => response.ok ? response.json() : Promise.reject('Geo API HTTP 错误'))
                 .then(data => {
                     if (data.status === 'success') {
                         const city = data.city || '未知城市';
@@ -450,10 +533,7 @@
             const weatherApiUrl = `https://wttr.in/${city}?format=j1&lang=zh`;
             
             fetch(weatherApiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Weather API 查询失败');
-                    return response.json();
-                })
+                .then(response => response.ok ? response.json() : Promise.reject('Weather API 查询失败'))
                 .then(data => {
                     if (data && data.current_condition && data.current_condition.length > 0) {
                         const current = data.current_condition[0];
@@ -506,17 +586,19 @@
 
 
         // -----------------------
-        // 6. 初始化和循环
+        // 7. 初始化和循环
         // -----------------------
         document.addEventListener('DOMContentLoaded', () => {
             renderStats();
             renderProgress(progressContainerDesktop);
             renderProgress(progressContainerMobile);
+            renderCommands(); // 渲染新的指令模块
             createParticles();
             
             fetchPublicIP();
             addLogEntry();
             
+            // 数据更新频率 (每秒一次)
             setInterval(updateRandomData, 1000); 
         });
 
