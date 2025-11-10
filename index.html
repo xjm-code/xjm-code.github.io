@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V13 (替换侧边栏)</title>
+    <title>项目: 访客追踪控制台 // V14 (音乐播放器)</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 颜色、字体和布局 (与 V12 保持一致) */
+        /* 1. 颜色、字体和布局 (与 V13 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
@@ -170,37 +170,64 @@
         .log-line.warning { color: var(--warning-color); } 
 
         /* ---------------------------------- */
-        /* 2. 目标追踪指令样式 (新增) */
+        /* 2. 音乐播放器样式 (新增) */
         /* ---------------------------------- */
-        .command-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .player-info {
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
         }
-        .command-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            font-size: 0.9em;
-            border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
+        .player-info p {
+            font-size: 0.85em;
+            line-height: 1.6;
+            margin-bottom: 5px;
         }
-        .command-name {
-            color: var(--text-color);
-            flex-grow: 1;
-        }
-        .command-status {
+        #current-track {
+            font-size: 1.1em;
+            color: var(--main-color);
             font-weight: bold;
-            text-align: right;
-            padding-left: 10px;
-            font-family: 'Audiowide', cursive;
+            text-shadow: 0 0 5px rgba(255, 153, 0, 0.7);
         }
-        
-        /* 状态颜色 */
-        .status-complete { color: #00ff99; text-shadow: 0 0 3px #00ff99; }
-        .status-pending { color: var(--main-color); text-shadow: 0 0 3px var(--main-color); }
-        .status-error { color: #ff5555; text-shadow: 0 0 3px #ff5555; }
-        .status-aborted { color: #ff00ff; text-shadow: 0 0 3px #ff00ff; } /* 紫色表示中止 */
 
+        /* 进度条/电平指示器 */
+        .level-meter {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-color);
+            transition: width 0.1s linear;
+        }
+
+        /* 控制按钮 */
+        .player-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: space-around;
+        }
+        .control-btn {
+            background: rgba(153, 0, 255, 0.2);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 8px 12px;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            text-shadow: 0 0 5px var(--accent-color);
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .control-btn:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
 
         /* 隐藏和显示控制 */
         .only-desktop { display: none; }
@@ -216,7 +243,7 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V13">项目: 访客追踪控制台 V13</h1>
+        <h1 data-text="项目: 访客追踪控制台 V14">项目: 访客追踪控制台 V14</h1>
 
         <div class="main-panel">
             
@@ -233,8 +260,8 @@
             </div>
             
             <div class="module only-mobile">
-                <h2>// 项目部署状态</h2>
-                <div id="progress-container-mobile">
+                <h2>// 网络音频控制台</h2>
+                <div id="audio-console-mobile">
                     </div>
             </div>
 
@@ -249,8 +276,8 @@
             </div>
 
             <div class="module only-desktop">
-                <h2>// 项目部署状态</h2>
-                <div id="progress-container-desktop">
+                <h2>// 网络音频控制台</h2>
+                <div id="audio-console-desktop">
                     </div>
             </div>
 
@@ -259,7 +286,7 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 (保持精简)
+        // 1. 初始数据模型 
         // -----------------------
         
         const initialStats = [
@@ -271,13 +298,6 @@
             { id: 'access', name: '访问时间', value: new Date().toLocaleTimeString('zh-CN'), unit: '' },
         ];
 
-        const initialProjects = [
-            { name: 'Alpha-Nexus 部署', progress: 92.1, status: '等待最终授权' },
-            { name: '量子路径规划', progress: 45.8, status: '计算进行中' },
-            { name: '数据流拦截', progress: 100, status: '完成 / 完整性: 99.999%' },
-            { name: '目标向量分析', progress: 65.3, status: '优化路径效率' },
-        ];
-        
         const initialCommands = [
             { id: 'cmd001', name: '\[CMD-001] 链路加密验证', status: 'COMPLETE' },
             { id: 'cmd002', name: '\[CMD-002] 访客权限评估', status: 'PENDING' },
@@ -286,31 +306,33 @@
             { id: 'cmd005', name: '\[CMD-005] 侧信道扫描', status: 'ABORTED' },
         ];
 
+        // 新增：音乐播放器数据
+        const tracks = [
+            { title: 'Data Stream Intercept', artist: 'Synthwave Coder', duration: 215 },
+            { title: 'Matrix Protocol', artist: 'HoloNet Digger', duration: 180 },
+            { title: 'Neon Night City', artist: 'Vapor Glitch', duration: 250 },
+            { title: 'Access Denied Remix', artist: 'Firewall Breach', duration: 198 },
+        ];
+        
+        let playerState = {
+            currentIndex: 0,
+            status: 'PLAYING', // PLAYING, PAUSED, STOPPED
+            currentTime: 0,
+            duration: tracks[0].duration // 初始时长
+        };
+        
         const statsGrid = document.getElementById('stats-grid');
-        const progressContainerDesktop = document.getElementById('progress-container-desktop');
-        const progressContainerMobile = document.getElementById('progress-container-mobile');
         const logFeed = document.getElementById('log-feed');
         const commandList = document.getElementById('command-list');
+        const audioConsoleDesktop = document.getElementById('audio-console-desktop');
+        const audioConsoleMobile = document.getElementById('audio-console-mobile');
         
         // -----------------------
-        // 2. 随机数据生成函数 
+        // 2. 随机数据生成函数 (保持不变)
         // -----------------------
-        function generateRandomIP(internal = true) {
-            if (internal) {
-                return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-            } else {
-                return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-            }
-        }
-        
-        function generateRandomPort() {
-            return Math.floor(Math.random() * 60000) + 1024;
-        }
-        
-        function generateRandomHash() {
-            return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
-        }
-
+        function generateRandomIP(internal = true) { /* ... implementation ... */ return internal ? `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}` : `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`; }
+        function generateRandomPort() { return Math.floor(Math.random() * 60000) + 1024; }
+        function generateRandomHash() { return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase(); }
         function generateRandomFileName() {
             const names = ['config', 'backup', 'temp', 'log', 'image', 'db', 'user', 'main', 'script'];
             const extensions = ['.dat', '.bin', '.tmp', '.json', '.sh', '.py', '.txt', '.enc'];
@@ -346,61 +368,110 @@
         // -----------------------
         // 4. 渲染函数
         // -----------------------
-        function renderStats() {
-            statsGrid.innerHTML = initialStats.map(stat => `
-                <div class="stat-item">
-                    <h3>${stat.name}</h3>
-                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'country' || stat.id === 'city' || stat.id === 'temp') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+        
+        // 时间格式化 MM:SS
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        function renderPlayer(container) {
+            const track = tracks[playerState.currentIndex];
+            const statusColor = playerState.status === 'PLAYING' ? '#00ff99' : '#ff9900';
+            const statusText = playerState.status === 'PLAYING' ? '\[播放中]' : playerState.status === 'PAUSED' ? '\[暂停]' : '\[停止]';
+
+            container.innerHTML = `
+                <div class="player-info">
+                    <p>状态: <span style="color: ${statusColor};">${statusText}</span></p>
+                    <p id="current-track">${track.title}</p>
+                    <p>艺术家: ${track.artist}</p>
+                    <p>时间: <span id="current-time">${formatTime(playerState.currentTime)}</span> / ${formatTime(track.duration)}</p>
                 </div>
-            `).join('');
+                <div class="level-meter">
+                    <div id="progress-bar-${container.id}" style="width: 0%;"></div>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn" onclick="togglePlayPause('${container.id}')" id="play-pause-btn-${container.id}">\[${playerState.status === 'PLAYING' ? 'PAUSE' : 'PLAY'}]</button>
+                    <button class="control-btn" onclick="nextTrack('${container.id}')">\[NEXT TRACK]</button>
+                </div>
+            `;
         }
         
-        function renderCommands() {
-            commandList.innerHTML = initialCommands.map(cmd => {
-                let statusClass = '';
-                switch (cmd.status) {
-                    case 'COMPLETE':
-                        statusClass = 'status-complete';
-                        break;
-                    case 'PENDING':
-                        statusClass = 'status-pending';
-                        break;
-                    case 'ERROR':
-                        statusClass = 'status-error';
-                        break;
-                    case 'ABORTED':
-                        statusClass = 'status-aborted';
-                        break;
-                    default:
-                        statusClass = 'status-pending';
-                }
-                return `
-                    <div class="command-item">
-                        <span class="command-name">${cmd.name}</span>
-                        <span class="command-status ${statusClass}">${cmd.status}</span>
-                    </div>
-                `;
-            }).join('');
+        // 5. 播放器控制函数 (暴露给 HTML onclick)
+        window.togglePlayPause = function(containerId) {
+            playerState.status = playerState.status === 'PLAYING' ? 'PAUSED' : 'PLAYING';
+            // 立即更新按钮文本
+            const btn = document.getElementById(`play-pause-btn-${containerId}`);
+            if (btn) {
+                btn.textContent = `\[${playerState.status === 'PLAYING' ? 'PAUSE' : 'PLAY'}]`;
+            }
+            // 重新渲染以更新状态文本颜色
+            renderPlayer(document.getElementById(containerId));
         }
-        
+
+        window.nextTrack = function(containerId) {
+            playerState.currentIndex = (playerState.currentIndex + 1) % tracks.length;
+            playerState.currentTime = 0;
+            playerState.duration = tracks[playerState.currentIndex].duration;
+            playerState.status = 'PLAYING';
+            
+            // 重新渲染所有播放器实例
+            renderPlayer(audioConsoleDesktop);
+            renderPlayer(audioConsoleMobile);
+            
+            // 添加日志
+            addLogEntry({ 
+                text: ` <INFO> 播放列表: 切换至下一曲 - ${tracks[playerState.currentIndex].title}`, 
+                class: 'info' 
+            });
+        }
+
+
         // -----------------------
-        // 5. 实时数据更新逻辑
+        // 6. 实时数据更新逻辑
         // -----------------------
 
+        function updatePlayerTime() {
+            if (playerState.status === 'PLAYING') {
+                playerState.currentTime += 1;
+                
+                if (playerState.currentTime >= playerState.duration) {
+                    // 播放完成，自动切换下一曲
+                    nextTrack(audioConsoleDesktop.id); // 使用桌面ID作为参数
+                    return; 
+                }
+            }
+
+            // 更新时间和进度条
+            const progressDesktop = document.getElementById('progress-bar-audio-console-desktop');
+            const progressMobile = document.getElementById('progress-bar-audio-console-mobile');
+            const timeDisplays = document.querySelectorAll('[id^="current-time"]');
+            
+            const progressPercent = (playerState.currentTime / playerState.duration) * 100;
+
+            if (progressDesktop) progressDesktop.style.width = progressPercent + '%';
+            if (progressMobile) progressMobile.style.width = progressPercent + '%';
+
+            timeDisplays.forEach(el => {
+                el.textContent = formatTime(playerState.currentTime);
+            });
+            
+            // 确保播放状态文本更新，尤其是暂停/播放按钮
+            document.getElementById('play-pause-btn-audio-console-desktop').textContent = `\[${playerState.status === 'PLAYING' ? 'PAUSE' : 'PLAY'}]`;
+            document.getElementById('play-pause-btn-audio-console-mobile').textContent = `\[${playerState.status === 'PLAYING' ? 'PAUSE' : 'PLAY'}]`;
+
+        }
+
         function updateCommands() {
-            // 随机更新指令状态，使侧边栏看起来是动态的
+            // 随机更新指令状态
             initialCommands.forEach(cmd => {
                 const rand = Math.random();
                 if (cmd.status === 'PENDING') {
-                    if (rand < 0.3) { // 30% 几率完成
-                        cmd.status = 'COMPLETE';
-                    } else if (rand > 0.9) { // 10% 几率出错
-                        cmd.status = 'ERROR';
-                    }
+                    if (rand < 0.3) { cmd.status = 'COMPLETE'; } 
+                    else if (rand > 0.9) { cmd.status = 'ERROR'; }
                 } else if (cmd.status === 'COMPLETE' || cmd.status === 'ERROR' || cmd.status === 'ABORTED') {
-                    if (rand > 0.8) { // 20% 几率重置为 PENDING
-                        cmd.status = 'PENDING';
-                    }
+                    if (rand > 0.8) { cmd.status = 'PENDING'; }
                 }
             });
             renderCommands();
@@ -408,36 +479,29 @@
 
         function updateRandomData() {
             updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
-            updateCommands(); // 新增：更新指令状态
-
-            // 进度条更新
-            [progressContainerDesktop, progressContainerMobile].forEach(container => {
-                if (!container) return;
-                const progressFills = container.querySelectorAll('.progress-fill');
-                const progressTexts = container.querySelectorAll('.progress-item p');
-
-                initialProjects.forEach((project, index) => {
-                    if (project.progress < 100) {
-                        let increment = Math.random() * 3 + 0.1; 
-                        project.progress = Math.min(100, project.progress + increment);
-                        
-                        if(progressFills[index]) {
-                            progressFills[index].style.width = project.progress + '%';
-                        }
-                        if(progressTexts[index]) {
-                            progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
-                        }
-                    }
-                });
-            });
-
+            updateCommands(); 
+            updatePlayerTime(); // 新增：更新播放器时间
             addLogEntry();
         }
         
         // -----------------------
-        // 6. API 和辅助函数 (保持不变)
+        // 7. API 和辅助函数 (保持不变)
         // -----------------------
         
+        function renderCommands() {
+            commandList.innerHTML = initialCommands.map(cmd => {
+                let statusClass = '';
+                switch (cmd.status) {
+                    case 'COMPLETE': statusClass = 'status-complete'; break;
+                    case 'PENDING': statusClass = 'status-pending'; break;
+                    case 'ERROR': statusClass = 'status-error'; break;
+                    case 'ABORTED': statusClass = 'status-aborted'; break;
+                    default: statusClass = 'status-pending';
+                }
+                return `<div class="command-item"><span class="command-name">${cmd.name}</span><span class="command-status ${statusClass}">${cmd.status}</span></div>`;
+            }).join('');
+        }
+
         function updateStatDisplay(id, value, isError = false) {
             const entry = initialStats.find(s => s.id === id);
             const element = document.getElementById(`${id}-value`);
@@ -446,19 +510,16 @@
                 const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
                 element.textContent = displayValue + entry.unit;
                 
-                if (isError) {
-                    element.style.color = 'red';
-                } else {
-                    element.style.color = 'var(--text-color)';
-                }
+                if (isError) { element.style.color = 'red'; } 
+                else { element.style.color = 'var(--text-color)'; }
             }
         }
 
-        function addLogEntry() {
+        function addLogEntry(manualLog = null) {
             const now = new Date();
             const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
             
-            const log = generateRandomLog(); 
+            const log = manualLog || generateRandomLog(); 
             
             const newLog = document.createElement('div');
             newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; 
@@ -507,9 +568,7 @@
                         const city = data.city || '未知城市';
                         updateStatDisplay('country', data.country || '未知国家');
                         updateStatDisplay('city', city);
-                        
                         fetchWeather(city); 
-
                     } else {
                         updateStatDisplay('country', '查询失败', true);
                         updateStatDisplay('city', data.message || 'API 错误', true);
@@ -555,19 +614,6 @@
                 });
         }
         
-        function renderProgress(container) {
-            if (!container) return; 
-            container.innerHTML = initialProjects.map(project => `
-                <div class="progress-item">
-                    <h4>${project.name}</h4>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${project.progress}%"></div>
-                    </div>
-                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
-                </div>
-            `).join('');
-        }
-
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -586,13 +632,13 @@
 
 
         // -----------------------
-        // 7. 初始化和循环
+        // 8. 初始化和循环
         // -----------------------
         document.addEventListener('DOMContentLoaded', () => {
             renderStats();
-            renderProgress(progressContainerDesktop);
-            renderProgress(progressContainerMobile);
-            renderCommands(); // 渲染新的指令模块
+            renderCommands(); 
+            renderPlayer(audioConsoleDesktop); // 渲染桌面版播放器
+            renderPlayer(audioConsoleMobile); // 渲染移动版播放器
             createParticles();
             
             fetchPublicIP();
