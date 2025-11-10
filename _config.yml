@@ -1,0 +1,11 @@
+# 启用主题
+remote_theme: pages-themes/minimal@v0.2.0
+
+# 您的网站信息
+title: 我的 GitHub Pages 网站
+description: 这是一个使用 Jekyll 主题搭建的个人页面。
+
+# 启用必要的 Jekyll 插件
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
