@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT: ZENITH // DATA CONSOLE</title>
+    <title>PROJECT: NEON-MATRIX // INTERACTIVE CONSOLE</title>
     <style>
         /* ---------------------------------- */
         /* 1. 全局样式和未来主义字体 */
         /* ---------------------------------- */
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
-            --bg-color: #0d1117; /* 深蓝灰色背景 */
-            --main-color: #00ff99; /* 霓虹绿主色 */
-            --accent-color: #00aaff; /* 霓虹蓝强调色 */
-            --text-color: #e6e6e6;
-            --border-color: rgba(0, 255, 153, 0.3);
-            --shadow-glow: 0 0 5px var(--main-color), 0 0 10px var(--main-color);
+            --bg-color: #000000;
+            --main-color: #00ffc8; /* 亮青色 */
+            --accent-color: #ff00ff; /* 品红色 */
+            --text-color: #e0f7fa;
+            --border-color: rgba(0, 255, 200, 0.4);
+            --shadow-glow: 0 0 5px var(--main-color), 0 0 15px var(--main-color), 0 0 25px rgba(0, 255, 200, 0.6);
         }
 
         * {
@@ -29,193 +29,203 @@
             font-family: 'Space Mono', monospace;
             background-color: var(--bg-color);
             color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden; /* 防止粒子溢出产生滚动条 */
+            perspective: 1000px; /* 添加3D景深 */
         }
 
         /* ---------------------------------- */
-        /* 2. 容器和布局 */
+        /* 2. 粒子/代码雨背景 (Code Rain Effect) */
         /* ---------------------------------- */
-        .container {
-            width: 90%;
-            max-width: 1400px;
-            padding: 30px;
-            display: grid;
-            gap: 20px;
-            grid-template-columns: 2fr 1fr; /* 左侧宽，右侧窄 */
-            z-index: 10;
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 5;
+            background: radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 100%);
         }
 
-        .main-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .particle {
+            position: absolute;
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(to bottom, rgba(0, 255, 200, 0.8), rgba(0, 255, 200, 0));
+            opacity: 0.6;
+            animation: code-rain linear infinite;
         }
 
-        .side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* ---------------------------------- */
-        /* 3. 霓虹和边框效果 */
-        /* ---------------------------------- */
-        .module {
-            background: rgba(13, 17, 23, 0.7);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(0, 255, 153, 0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
+        @keyframes code-rain {
+            0% { transform: translateY(-100vh) scaleY(1); opacity: 0.8; }
+            100% { transform: translateY(100vh) scaleY(0.5); opacity: 0; }
         }
         
-        /* 鼠标悬停交互 */
+        /* ---------------------------------- */
+        /* 3. 布局 (使用 Grid 实现响应式) */
+        /* ---------------------------------- */
+        .container {
+            width: 95%;
+            max-width: 1600px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            gap: 20px;
+            z-index: 10;
+            /* 默认单列布局（手机）*/
+            grid-template-columns: 1fr; 
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                /* 电脑/平板布局 */
+                grid-template-columns: 2fr 1fr; /* 左侧宽，右侧窄 */
+                padding: 40px;
+            }
+        }
+
+        /* ---------------------------------- */
+        /* 4. 模块和霓虹样式 */
+        /* ---------------------------------- */
+        .module {
+            background: rgba(13, 17, 23, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+            /* 立体光晕 */
+            filter: drop-shadow(0 0 5px var(--main-color));
+            transition: transform 0.4s ease-out, box-shadow 0.4s;
+        }
+        
         .module:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0, 255, 153, 0.4);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.5); /* 悬停时切换光晕颜色 */
+            filter: drop-shadow(0 0 10px var(--accent-color));
+        }
+
+        h1 {
+            font-family: 'Audiowide', cursive;
+            color: var(--accent-color);
+            text-align: center;
+            font-size: clamp(2em, 5vw, 4em);
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
         }
 
         h2 {
-            font-size: 1.5em;
-            color: var(--accent-color);
+            font-size: 1.3em;
+            color: var(--main-color);
             text-shadow: var(--shadow-glow);
             margin-bottom: 15px;
-            border-bottom: 1px dashed var(--border-color);
             padding-bottom: 5px;
         }
 
         /* ---------------------------------- */
-        /* 4. 仪表盘样式 */
+        /* 5. 故障艺术 (Glitch Effect) */
+        /* ---------------------------------- */
+        .glitch {
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(4px, 4px); }
+            80% { transform: translate(-2px, -4px); }
+            100% { transform: translate(3px, 1px); }
+        }
+
+        /* ---------------------------------- */
+        /* 6. 仪表盘和数据值样式 */
         /* ---------------------------------- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* 自适应列 */
             gap: 15px;
         }
 
         .stat-item {
-            background: rgba(0, 255, 153, 0.1);
-            padding: 10px;
-            border-left: 3px solid var(--main-color);
+            background: rgba(0, 255, 200, 0.05);
+            padding: 15px;
+            border-left: 3px solid var(--accent-color);
         }
 
         .stat-item h3 {
-            font-size: 0.9em;
+            font-size: 0.8em;
             color: var(--main-color);
-            opacity: 0.8;
+            opacity: 0.7;
         }
 
         .stat-value {
-            font-size: 1.8em;
+            font-family: 'Audiowide', cursive;
+            font-size: clamp(1.5em, 4vw, 2.2em);
             font-weight: 700;
             color: var(--text-color);
             text-shadow: var(--shadow-glow);
         }
-
+        
         /* ---------------------------------- */
-        /* 5. 进度条样式 */
-        /* ---------------------------------- */
-        .progress-bar {
-            height: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            margin-top: 5px;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-            transition: width 0.8s ease-out;
-        }
-
-        .progress-item p {
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-
-        /* ---------------------------------- */
-        /* 6. 活动日志样式 */
+        /* 7. 活动日志样式 */
         /* ---------------------------------- */
         .log-feed {
-            height: 250px;
-            overflow-y: auto;
-            border: 1px dashed var(--border-color);
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px dashed var(--accent-color);
             padding: 10px;
-            font-size: 0.85em;
-            line-height: 1.4;
-            background: rgba(0, 0, 0, 0.5);
+            font-size: 0.8em;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.7);
+            /* 手机上自动高度 */
+            max-height: 40vh; 
         }
 
-        .log-feed::-webkit-scrollbar {
-            width: 5px;
+        @media (min-width: 768px) {
+             .log-feed {
+                 max-height: 300px; /* 电脑上固定高度 */
+             }
         }
-        .log-feed::-webkit-scrollbar-thumb {
-            background: var(--main-color);
-        }
-
+        
         .log-line {
-            white-space: pre; /* 保留空格，模拟终端输出 */
-            color: var(--text-color);
+            white-space: pre; 
+            opacity: 0.8;
+            transition: opacity 0.5s;
         }
         .log-line.warning { color: yellow; }
-        .log-line.error { color: red; }
+        .log-line.error { color: #ff5555; font-weight: bold; }
         .log-line.success { color: var(--main-color); }
-
+        
         /* ---------------------------------- */
-        /* 7. 导航菜单样式 */
+        /* 8. 导航菜单样式 */
         /* ---------------------------------- */
         .nav-link {
             display: block;
             background: none;
             border: 2px solid var(--accent-color);
             color: var(--accent-color);
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             text-decoration: none;
             margin-bottom: 10px;
             transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            text-shadow: 0 0 5px var(--accent-color);
         }
 
         .nav-link:hover {
             background: var(--accent-color);
             color: var(--bg-color);
             box-shadow: 0 0 15px var(--accent-color);
-        }
-
-        /* ---------------------------------- */
-        /* 8. 粒子背景动画 (酷炫狂屌部分) */
-        /* ---------------------------------- */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none; /* 确保不阻挡点击事件 */
-            z-index: 5;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--main-color);
-            opacity: 0.6;
-            animation: move-particles linear infinite;
-        }
-
-        /* 随机生成粒子位置和动画延迟 */
-        /* (JS 将会动态添加这些粒子) */
-
-        @keyframes move-particles {
-            0% { transform: translateY(0) scale(1); opacity: 0.6; }
-            100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            text-shadow: none;
+            /* 悬停时添加小幅故障 */
+            animation: glitch-anim 0.5s infinite;
         }
 
     </style>
@@ -226,16 +236,18 @@
 
     <div class="container">
         
+        <h1 class="glitch">PROJECT: NEON-MATRIX // ZENITH CONSOLE</h1>
+
         <div class="main-panel">
             
             <div class="module">
-                <h2>// CORE SYSTEM STATUS</h2>
+                <h2>// CORE SYSTEM STATUS (INTERACTIVE)</h2>
                 <div class="stats-grid" id="stats-grid">
                     </div>
             </div>
 
             <div class="module">
-                <h2>// REAL-TIME ACTIVITY LOG</h2>
+                <h2>// REAL-TIME ACTIVITY LOG (LOG-FEED)</h2>
                 <div class="log-feed" id="log-feed">
                     </div>
             </div>
@@ -245,7 +257,7 @@
         <div class="side-panel">
             
             <div class="module">
-                <h2>// ACCESS TERMINAL</h2>
+                <h2>// ACCESS TERMINAL (NAV)</h2>
                 <a href="#profile" class="nav-link">\[ACCESS: PROFILE]</a>
                 <a href="#projects" class="nav-link">\[LOG: PROJECTS]</a>
                 <a href="#connect" class="nav-link">\[CONNECT: TERMINAL]</a>
@@ -269,7 +281,7 @@
             { id: 'cpu', name: '处理器负载 (CPU Load)', value: 87.4, unit: '%', status: 'High Performance Mode' },
             { id: 'mem', name: '内存使用率 (Memory Usage)', value: 12.08, unit: ' GB', status: 'Optimal' },
             { id: 'ping', name: '网络延迟 (Ping Latency)', value: 4.5, unit: ' ms', status: 'Sub-Orbital Link' },
-            { id: 'temp', name: '能量核心温度 (Core Temp)', value: 62.3, unit: ' °C', status: 'Nominal Deviation' },
+            { id: 'temp', name: '核心温度 (Core Temp)', value: 62.3, unit: ' °C', status: 'Nominal Deviation' },
         ];
 
         const initialProjects = [
@@ -287,6 +299,7 @@
             ' <USER> User \'Ghost_Pilot\' logged in from Sector 3. Access Level: Admin',
             ' <ERROR> Database write failed. Retrying in 3 seconds.',
             ' <SUCCESS> Data Integrity Check Complete. No anomalies detected.',
+            ' <DEBUG> Memory cleanup routine completed. 4.5GB recovered.'
         ];
 
         const statsGrid = document.getElementById('stats-grid');
@@ -301,8 +314,7 @@
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <h3>${stat.name}</h3>
-                    <div class="stat-value" id="${stat.id}-value">${stat.value}${stat.unit}</div>
-                    <p>${stat.status}</p>
+                    <div class="stat-value ${stat.id === 'cpu' ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
                 </div>
             `).join('');
         }
@@ -320,17 +332,22 @@
         }
 
         // -----------------------
-        // 3. 实时数据更新逻辑 (核心互动部分)
+        // 3. 实时数据更新逻辑
         // -----------------------
 
         function updateRandomData() {
             // A. 更新系统状态 (随机波动)
             initialStats.forEach(stat => {
-                let change = (Math.random() - 0.5) * 5; // -2.5 到 2.5 的随机变化
+                let change = (Math.random() - 0.5) * 5; 
+                
                 if (stat.id === 'ping') {
-                    change = (Math.random() - 0.5) * 1.5; // Ping变化小一点
+                    change = (Math.random() - 0.5) * 1.5; 
                     stat.value = Math.max(1.0, stat.value + change);
-                } else {
+                } else if (stat.id === 'temp') {
+                    change = (Math.random() - 0.5) * 1.0;
+                    stat.value = Math.max(50.0, stat.value + change);
+                }
+                else {
                     stat.value = Math.max(10.0, Math.min(99.9, stat.value + change));
                 }
                 
@@ -346,7 +363,7 @@
 
             initialProjects.forEach((project, index) => {
                 if (project.progress < 100) {
-                    let increment = Math.random() * 3 + 0.1; // 0.1 到 3.1 的随机增长
+                    let increment = Math.random() * 3 + 0.1; 
                     project.progress = Math.min(100, project.progress + increment);
                     
                     if(progressFills[index]) {
@@ -371,6 +388,7 @@
             if (randomLog.includes('<WARNING>')) logClass = 'warning';
             else if (randomLog.includes('<ERROR>')) logClass = 'error';
             else if (randomLog.includes('<SUCCESS>')) logClass = 'success';
+            else if (randomLog.includes('<INFO>') || randomLog.includes('<EVENT>')) logClass = 'success'; // INFO/EVENT也使用绿色
             
             const newLog = document.createElement('div');
             newLog.className = `log-line ${logClass}`;
@@ -383,35 +401,32 @@
                 logFeed.appendChild(newLog);
             }
 
-            // 保持日志数量不超过 15 条
-            while (logFeed.children.length > 15) {
+            // 保持日志数量不超过 18 条 (避免手机屏幕塞满)
+            while (logFeed.children.length > 18) {
                 logFeed.removeChild(logFeed.lastChild);
             }
         }
 
         // -----------------------
-        // 4. 粒子背景动画 (CSS 动画)
+        // 4. 粒子/代码雨动画
         // -----------------------
 
         function createParticles() {
             const container = document.getElementById('particle-container');
-            const numParticles = 50; 
+            const numParticles = 70; // 增加粒子数量
             for (let i = 0; i < numParticles; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 
-                // 随机起始位置
+                // 随机起始位置 (使用 vmin 确保响应式)
                 particle.style.left = `${Math.random() * 100}vw`;
-                particle.style.top = `-${Math.random() * 100}vh`; // 从顶部外开始
                 
                 // 随机动画时长和延迟
-                particle.style.animationDuration = `${Math.random() * 8 + 5}s`; // 5s to 13s
-                particle.style.animationDelay = `-${Math.random() * 10}s`; // 负延迟让粒子一开始就分散
+                particle.style.animationDuration = `${Math.random() * 8 + 4}s`; // 4s to 12s
+                particle.style.animationDelay = `-${Math.random() * 12}s`; 
                 
-                // 随机大小
-                const size = Math.random() * 3 + 1; // 1px to 4px
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
+                // 随机透明度
+                particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
 
                 container.appendChild(particle);
             }
@@ -421,14 +436,13 @@
         // 5. 初始化和循环
         // -----------------------
 
-        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', () => {
             renderStats();
             renderProgress();
             createParticles();
             
-            // 每 1.5 秒更新一次数据
-            setInterval(updateRandomData, 1500); 
+            // 每 1.2 秒更新一次数据 (增加动态感)
+            setInterval(updateRandomData, 1200); 
             // 立即添加第一条日志
             addLogEntry();
         });
