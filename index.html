@@ -233,3 +233,216 @@
         }
 
         // 模拟生成国家/地区（IP由API提供，Location继续模拟）
+        function generateRandomLocation() {
+            const cities = ['Shenzhen', 'New York', 'London', 'Tokyo', 'Berlin', 'Dubai', 'Sydney', 'Paris', 'Moscow', 'Shanghai'];
+            const countries = ['China', 'USA', 'UK', 'Japan', 'Germany', 'UAE', 'Australia', 'France', 'Russia', 'Brazil'];
+            const city = cities[Math.floor(Math.random() * cities.length)];
+            const country = countries[Math.floor(Math.random() * countries.length)];
+            return `${city}, ${country}`;
+        }
+
+        const deviceInfo = getDeviceInfo();
+
+        // 初始 IP 设置为加载中
+        const initialStats = [
+            { id: 'ip', name: '接入 IP (Public)', value: 'LOADING...', unit: '' }, // IP 目标
+            { id: 'browser', name: '浏览器型号 (Client)', value: deviceInfo.browser, unit: '' },
+            { id: 'os', name: '操作系统 (OS)', value: deviceInfo.os, unit: '' },
+            { id: 'res', name: '屏幕分辨率 (Resolution)', value: `${deviceInfo.screenW}x${deviceInfo.screenH}`, unit: '' },
+            { id: 'location', name: '地理位置 (Simulated)', value: generateRandomLocation(), unit: '' },
+            { id: 'access', name: '访问时间 (Timestamp)', value: new Date().toLocaleTimeString(), unit: '' },
+        ];
+
+        // ... (initialProjects 和 logs 保持不变)
+        const initialProjects = [
+            { name: 'Alpha-Nexus Deployment', progress: 92.1, status: 'Awaiting Final Authorization' },
+            { name: 'Quantum Pathfinding', progress: 45.8, status: 'Calculations in Progress' },
+            { name: 'Data Stream Intercept', progress: 100, status: 'Complete / Integrity: 99.999%' },
+            { name: 'Target Vector Analysis (TVA)', progress: 65.3, status: 'Optimizing Route Efficiency' },
+        ];
+        
+        const logs = [
+            ' <INFO> System Initializing... Status: SUCCESS',
+            ' <ATTEMPT> Unauthorized probe detected from IP: 101.55.2.145',
+            ' <EVENT> Resource Allocation for Sub-Routine 7 initiated. Status: SUCCESS',
+            ' <DATA> Encrypted Packet Signature Verified. Key Hash: 7A1C-4E0D-B9F2',
+            ' <USER> New connection established: Tracking ID 89B-G4-C0DE',
+            ' <ERROR> Database write failed. Retrying in 3 seconds.',
+            ' <SUCCESS> Data Integrity Check Complete. No anomalies detected.',
+            ' <DEBUG> Memory cleanup routine completed. 4.5GB recovered.'
+        ];
+
+
+        const statsGrid = document.getElementById('stats-grid');
+        const progressContainerDesktop = document.getElementById('progress-container-desktop');
+        const progressContainerMobile = document.getElementById('progress-container-mobile');
+        const logFeed = document.getElementById('log-feed');
+
+        // -----------------------
+        // 2. 渲染初始数据
+        // -----------------------
+        function renderStats() {
+            statsGrid.innerHTML = initialStats.map(stat => `
+                <div class="stat-item">
+                    <h3>${stat.name}</h3>
+                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'location') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderProgress(container) {
+            if (!container) return; 
+            container.innerHTML = initialProjects.map(project => `
+                <div class="progress-item">
+                    <h4>${project.name}</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${project.progress}%"></div>
+                    </div>
+                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
+                </div>
+            `).join('');
+        }
+
+        // -----------------------
+        // 3. IP 获取逻辑
+        // -----------------------
+        function fetchPublicIP() {
+            const ipEntry = initialStats.find(s => s.id === 'ip');
+            const ipElement = document.getElementById('ip-value');
+            if (!ipEntry || !ipElement) return;
+
+            ipElement.textContent = 'QUERYING...';
+
+            fetch('https://api.ipify.org?format=json')
+                .then(response => {
+                    if (!response.ok) throw new Error('API query failed');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.ip) {
+                        ipEntry.value = data.ip;
+                        ipElement.textContent = data.ip;
+                    } else {
+                        throw new Error('Invalid API response');
+                    }
+                })
+                .catch(error => {
+                    console.error("Failed to fetch public IP:", error);
+                    ipEntry.value = 'ERROR: IP UNAVAILABLE';
+                    ipElement.textContent = 'ERROR: IP UNAVAILABLE';
+                    ipElement.style.color = 'red'; // 错误时变红
+                });
+        }
+        
+        // -----------------------
+        // 4. 实时数据更新逻辑
+        // -----------------------
+
+        function updateRandomData() {
+            // 只更新模拟数据
+            initialStats.forEach(stat => {
+                if (stat.id === 'location') {
+                    // 每秒有 5% 的概率切换地点
+                     if (Math.random() < 0.05) {
+                        stat.value = generateRandomLocation();
+                    }
+                } else if (stat.id === 'access') {
+                    // 实时更新时间戳
+                    stat.value = new Date().toLocaleTimeString();
+                }
+                
+                const element = document.getElementById(`${stat.id}-value`);
+                if (element && stat.id !== 'ip') { // IP 不在这里更新
+                    element.textContent = stat.value + stat.unit;
+                }
+            });
+
+            // 进度条更新 (保持模拟)
+            [progressContainerDesktop, progressContainerMobile].forEach(container => {
+                if (!container) return;
+                const progressFills = container.querySelectorAll('.progress-fill');
+                const progressTexts = container.querySelectorAll('.progress-item p');
+
+                initialProjects.forEach((project, index) => {
+                    if (project.progress < 100) {
+                        let increment = Math.random() * 3 + 0.1; 
+                        project.progress = Math.min(100, project.progress + increment);
+                        
+                        if(progressFills[index]) {
+                            progressFills[index].style.width = project.progress + '%';
+                        }
+                        if(progressTexts[index]) {
+                            progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
+                        }
+                    }
+                });
+            });
+
+            addLogEntry();
+        }
+
+        // Log feed 保持不变
+        function addLogEntry() {
+            const now = new Date();
+            const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            const randomLog = logs[Math.floor(Math.random() * logs.length)];
+            
+            let logClass = '';
+            if (randomLog.includes('<WARNING>') || randomLog.includes('<ATTEMPT>')) logClass = 'warning';
+            else if (randomLog.includes('<ERROR>')) logClass = 'error';
+            else if (randomLog.includes('<SUCCESS>') || randomLog.includes('<INFO>') || randomLog.includes('<EVENT>') || randomLog.includes('<USER>')) logClass = 'success';
+            
+            const newLog = document.createElement('div');
+            newLog.className = `log-line ${logClass}`;
+            newLog.textContent = `[${timeString}]${randomLog}`;
+            
+            if (logFeed.firstChild) {
+                logFeed.insertBefore(newLog, logFeed.firstChild);
+            } else {
+                logFeed.appendChild(newLog);
+            }
+
+            while (logFeed.children.length > 25) { 
+                logFeed.removeChild(logFeed.lastChild);
+            }
+        }
+
+        // 粒子背景和 Glitch 动画 (保持不变)
+        function createParticles() { /* ... implementation ... */ }
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const numParticles = 70; 
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${Math.random() * 8 + 4}s`; 
+                particle.style.animationDelay = `-${Math.random() * 12}s`; 
+                particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
+
+                container.appendChild(particle);
+            }
+        }
+
+
+        // -----------------------
+        // 5. 初始化和循环
+        // -----------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStats();
+            renderProgress(progressContainerDesktop);
+            renderProgress(progressContainerMobile);
+            createParticles();
+            
+            // 页面加载时立即获取公网 IP
+            fetchPublicIP();
+
+            // 数据更新频率提高到每秒一次 (1000ms)
+            setInterval(updateRandomData, 1000); 
+            addLogEntry();
+        });
+
+    </script>
+</body>
+</html>
