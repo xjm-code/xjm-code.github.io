@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V10</title>
+    <title>项目: 访客追踪控制台 // V11</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 颜色、字体和布局 (与 V9 保持一致) */
+        /* 1. 颜色、字体和布局 (与 V10 保持一致) */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
@@ -17,6 +17,7 @@
             --text-color: #ffe8cc;
             --border-color: rgba(255, 153, 0, 0.4);
             --shadow-glow: 0 0 5px var(--main-color), 0 0 15px var(--main-color), 0 0 25px rgba(255, 153, 0, 0.6);
+            --warning-color: #ffff00;  /* 警告色 */
         }
 
         * {
@@ -163,8 +164,10 @@
             &::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
         }
         
+        /* 增加警告色日志样式 */
         .log-line.error { color: #ff5555; font-weight: bold; }
         .log-line.success { color: #00ff99; } 
+        .log-line.warning { color: var(--warning-color); } /* 新增警告色 */
 
         /* 隐藏和显示控制 */
         .only-desktop { display: none; }
@@ -180,7 +183,7 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V10">项目: 访客追踪控制台 V10</h1>
+        <h1 data-text="项目: 访客追踪控制台 V11">项目: 访客追踪控制台 V11</h1>
 
         <div class="main-panel">
             
@@ -225,7 +228,7 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型 - 访客数据 
+        // 1. 初始数据模型 
         // -----------------------
         
         function getDeviceInfo() {
@@ -250,7 +253,6 @@
 
         const deviceInfo = getDeviceInfo();
 
-        // 初始 IP 和地理位置设置为加载中
         const initialStats = [
             { id: 'ip', name: '接入 IP (公网)', value: '加载中...', unit: '' },
             { id: 'country', name: '国家/地区', value: '查询中...', unit: '' },
@@ -270,41 +272,139 @@
             { name: '目标向量分析', progress: 65.3, status: '优化路径效率' },
         ];
         
-        // 统一中文日志
-        const logs = [
-            ' <信息> 系统初始化... 状态: 成功',
-            ' <尝试> IP 101.55.2.145 检测到未经授权的探测',
-            ' <事件> 子程序 7 资源分配启动。 状态: 成功',
-            ' <数据> 加密数据包签名验证。 密钥哈希: 7A1C-4E0D-B9F2',
-            ' <用户> 新连接建立: 追踪 ID 89B-G4-C0DE',
-            ' <错误> 数据库写入失败。 3 秒后重试。',
-            ' <成功> 数据完整性检查完成。未发现异常。',
-            ' <调试> 内存清理程序完成。 4.5GB 恢复。'
-        ];
-
         const statsGrid = document.getElementById('stats-grid');
         const progressContainerDesktop = document.getElementById('progress-container-desktop');
         const progressContainerMobile = document.getElementById('progress-container-mobile');
         const logFeed = document.getElementById('log-feed');
+        
+        // -----------------------
+        // 2. 随机数据生成函数 (新增)
+        // -----------------------
+        function generateRandomIP(internal = true) {
+            if (internal) {
+                return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            } else {
+                return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            }
+        }
+        
+        function generateRandomPort() {
+            return Math.floor(Math.random() * 60000) + 1024; // 避开常见端口
+        }
+        
+        function generateRandomHash() {
+            // 生成一个 12 位十六进制哈希
+            return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+        }
+
+        function generateRandomFileName() {
+            const names = ['config', 'backup', 'temp', 'log', 'image', 'db', 'user', 'main', 'script'];
+            const extensions = ['.dat', '.bin', '.tmp', '.json', '.sh', '.py', '.txt', '.enc'];
+            return `${names[Math.floor(Math.random() * names.length)]}_${generateRandomHash().substring(0, 4)}${extensions[Math.floor(Math.random() * extensions.length)]}`;
+        }
+        
+        // -----------------------
+        // 3. 实时活动日志数据源 (增强)
+        // -----------------------
+        function generateRandomLog() {
+            const types = [
+                { type: 'SUCCESS', weight: 35, fn: () => Math.random() < 0.5 ? `系统核心进程 PID:${Math.floor(Math.random() * 9999)} 状态: 运行中` : `资源分配给 线程ID: 0x${generateRandomHash().substring(0, 8)} 状态: 完成` },
+                { type: 'INFO', weight: 25, fn: () => Math.random() < 0.6 ? `[连接] 建立与 ${generateRandomIP(false)}:${generateRandomPort()} 的外部连接` : `[文件] 文件 ${generateRandomFileName()} 校验成功。哈希: ${generateRandomHash()}` },
+                { type: 'WARNING', weight: 20, fn: () => `[警告] 内存使用率达到 95%。请释放资源!` },
+                { type: 'ATTEMPT', weight: 10, fn: () => `[尝试] 发现来自 ${generateRandomIP(false)} 端口 ${generateRandomPort()} 的未经授权访问尝试` },
+                { type: 'ERROR', weight: 5, fn: () => `[错误] 进程崩溃: 致命错误 0x${generateRandomHash().substring(0, 4)}` },
+                { type: 'DATA', weight: 5, fn: () => `[数据] 传输 ${Math.floor(Math.random() * 1000)} MB 数据包到内部服务器 ${generateRandomIP()}... 状态: 成功` }
+            ];
+
+            // 根据权重选择一个日志类型
+            let totalWeight = types.reduce((sum, item) => sum + item.weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (const logType of types) {
+                random -= logType.weight;
+                if (random <= 0) {
+                    let logText = logType.fn();
+                    return { text: ` <${logType.type}> ${logText}`, class: logType.type.toLowerCase() };
+                }
+            }
+            return { text: ' <INFO> 系统状态正常', class: 'info' }; // 默认返回值
+        }
 
         // -----------------------
-        // 2. 渲染和通用工具
+        // 4. 实时数据更新逻辑
         // -----------------------
-        function renderStats() {
-            statsGrid.innerHTML = initialStats.map(stat => `
-                <div class="stat-item">
-                    <h3>${stat.name}</h3>
-                    <div class="stat-value ${(stat.id === 'ip' || stat.id === 'country' || stat.id === 'city' || stat.id === 'temp') ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+        
+        function renderProgress(container) { /* ... implementation ... */ }
+        function renderProgress(container) {
+            if (!container) return; 
+            container.innerHTML = initialProjects.map(project => `
+                <div class="progress-item">
+                    <h4>${project.name}</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${project.progress}%"></div>
+                    </div>
+                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
                 </div>
             `).join('');
         }
+
+        function addLogEntry() {
+            const now = new Date();
+            const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            const log = generateRandomLog(); // 调用新的随机日志生成器
+            
+            const newLog = document.createElement('div');
+            newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; // 将 ATTACK 归类到 error
+            newLog.textContent = `[${timeString}]${log.text}`;
+            
+            if (logFeed.firstChild) {
+                logFeed.insertBefore(newLog, logFeed.firstChild);
+            } else {
+                logFeed.appendChild(newLog);
+            }
+
+            while (logFeed.children.length > 25) { 
+                logFeed.removeChild(logFeed.lastChild);
+            }
+        }
+
+        function updateRandomData() {
+            updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
+
+            // 进度条更新 (保持模拟)
+            [progressContainerDesktop, progressContainerMobile].forEach(container => {
+                if (!container) return;
+                const progressFills = container.querySelectorAll('.progress-fill');
+                const progressTexts = container.querySelectorAll('.progress-item p');
+
+                initialProjects.forEach((project, index) => {
+                    if (project.progress < 100) {
+                        let increment = Math.random() * 3 + 0.1; 
+                        project.progress = Math.min(100, project.progress + increment);
+                        
+                        if(progressFills[index]) {
+                            progressFills[index].style.width = project.progress + '%';
+                        }
+                        if(progressTexts[index]) {
+                            progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
+                        }
+                    }
+                });
+            });
+
+            addLogEntry();
+        }
+        
+        // -----------------------
+        // 5. IP, 地理位置和天气获取逻辑 (保持不变)
+        // -----------------------
         
         function updateStatDisplay(id, value, isError = false) {
             const entry = initialStats.find(s => s.id === id);
             const element = document.getElementById(`${id}-value`);
             if (entry && element) {
                 entry.value = value;
-                // 对于温度值，保留两位小数
                 const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
                 element.textContent = displayValue + entry.unit;
                 
@@ -315,10 +415,6 @@
                 }
             }
         }
-
-        // -----------------------
-        // 3. IP, 地理位置和天气获取逻辑 (Wttr.in)
-        // -----------------------
 
         function fetchPublicIP() {
             updateStatDisplay('ip', '查询中...');
@@ -347,7 +443,6 @@
             updateStatDisplay('country', '定位中...');
             updateStatDisplay('city', '定位中...');
             
-            // 使用 ip-api.com 的公共免费 API (获取城市名)
             const geoApiUrl = `http://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
             
             fetch(geoApiUrl)
@@ -361,7 +456,6 @@
                         updateStatDisplay('country', data.country || '未知国家');
                         updateStatDisplay('city', city);
                         
-                        // 成功获取城市后，获取天气
                         fetchWeather(city); 
 
                     } else {
@@ -380,12 +474,10 @@
                 });
         }
         
-        // 使用 Wttr.in API (免费，无需 Key)
         function fetchWeather(city) {
             updateStatDisplay('temp', '查询中...');
             updateStatDisplay('weather', '查询中...');
 
-            // Wttr.in JSON API: 城市名, 语言设为 zh, 输出 JSON
             const weatherApiUrl = `https://wttr.in/${city}?format=j1&lang=zh`;
             
             fetch(weatherApiUrl)
@@ -396,7 +488,6 @@
                 .then(data => {
                     if (data && data.current_condition && data.current_condition.length > 0) {
                         const current = data.current_condition[0];
-                        // Wttr.in 返回的温度是字符串，且带单位，这里需要清理
                         const tempString = current.temp_C.replace('C', '').trim();
                         const temp = parseFloat(tempString);
                         const description = current.lang_zh[0].value || current.weatherDesc[0].value || '未知';
@@ -415,75 +506,7 @@
                 });
         }
 
-
-        // -----------------------
-        // 4. 实时数据更新逻辑 (保持不变)
-        // -----------------------
-
-        function updateRandomData() {
-            updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
-
-            // 进度条更新 (保持模拟)
-            [progressContainerDesktop, progressContainerMobile].forEach(container => {
-                if (!container) return;
-                const progressFills = container.querySelectorAll('.progress-fill');
-                const progressTexts = container.querySelectorAll('.progress-item p');
-
-                initialProjects.forEach((project, index) => {
-                    if (project.progress < 100) {
-                        let increment = Math.random() * 3 + 0.1; 
-                        project.progress = Math.min(100, project.progress + increment);
-                        
-                        if(progressFills[index]) {
-                            progressFills[index].style.width = project.progress + '%';
-                        }
-                        if(progressTexts[index]) {
-                            progressTexts[index].innerHTML = `${project.progress.toFixed(1)}% | ${project.status}`;
-                        }
-                    }
-                });
-            });
-
-            addLogEntry();
-        }
-
-        function renderProgress(container) {
-            if (!container) return; 
-            container.innerHTML = initialProjects.map(project => `
-                <div class="progress-item">
-                    <h4>${project.name}</h4>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${project.progress}%"></div>
-                    </div>
-                    <p>${project.progress.toFixed(1)}% | ${project.status}</p>
-                </div>
-            `).join('');
-        }
-
-        function addLogEntry() {
-            const now = new Date();
-            const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            const randomLog = logs[Math.floor(Math.random() * logs.length)];
-            
-            let logClass = '';
-            if (randomLog.includes('<尝试>') || randomLog.includes('<错误>')) logClass = 'error';
-            else logClass = 'success';
-            
-            const newLog = document.createElement('div');
-            newLog.className = `log-line ${logClass}`;
-            newLog.textContent = `[${timeString}]${randomLog}`;
-            
-            if (logFeed.firstChild) {
-                logFeed.insertBefore(newLog, logFeed.firstChild);
-            } else {
-                logFeed.appendChild(newLog);
-            }
-
-            while (logFeed.children.length > 25) { 
-                logFeed.removeChild(logFeed.lastChild);
-            }
-        }
-
+        function createParticles() { /* ... implementation ... */ }
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -502,7 +525,7 @@
 
 
         // -----------------------
-        // 5. 初始化和循环
+        // 6. 初始化和循环
         // -----------------------
         document.addEventListener('DOMContentLoaded', () => {
             renderStats();
@@ -511,8 +534,11 @@
             createParticles();
             
             fetchPublicIP();
-            setInterval(updateRandomData, 1000); 
+            // 立即添加第一条日志，避免日志框空白
             addLogEntry();
+            
+            // 数据更新频率 (每秒一次)
+            setInterval(updateRandomData, 1000); 
         });
 
     </script>
