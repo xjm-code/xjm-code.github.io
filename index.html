@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V17 (播放器健壮性增强)</title>
+    <title>项目: 访客追踪控制台 // V18 (稳定播放器测试版)</title>
     <style>
         /* ---------------------------------- */
         /* 1. 颜色、字体和布局 (NEON-MATRIX 主题) */
@@ -38,6 +38,7 @@
             padding-top: 20px;
         }
         
+        /* 响应式布局 - Mobile First */
         .container {
             width: 95%;
             max-width: 1600px;
@@ -208,7 +209,8 @@
         #real-audio-player {
             width: 100%;
             margin-top: 20px;
-            filter: invert(1) hue-rotate(90deg); /* 尝试让原生控件颜色更搭配主题 */
+            /* 使原生控件更搭配主题，可以删除这行以获得默认样式 */
+            filter: invert(1) hue-rotate(90deg); 
         }
     </style>
 </head>
@@ -218,7 +220,7 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V17">项目: 访客追踪控制台 V17</h1>
+        <h1 data-text="项目: 访客追踪控制台 V18">项目: 访客追踪控制台 V18</h1>
 
         <div class="main-panel">
             
@@ -283,12 +285,14 @@
             { id: 'cmd005', name: '\[CMD-005] 侧信道扫描', status: 'ABORTED' },
         ];
 
-        // 实际可用的公共领域音频文件
+        // 【关键修复】更换为更稳定、更公共的测试音频链接 (来自稳定 CDN)
+        const stableTestUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+
         const tracks = [
-            { title: 'Data Stream Intercept', artist: 'Synthwave Coder', url: 'https://archive.org/download/8bit-music-collection/8bit-music-collection/8bit-music-15.mp3' },
-            { title: 'Matrix Protocol', artist: 'HoloNet Digger', url: 'https://archive.org/download/8bit-music-collection/8bit-music-collection/8bit-music-14.mp3' },
-            { title: 'Neon Night City', artist: 'Vapor Glitch', url: 'https://archive.org/download/8bit-music-collection/8bit-music-collection/8bit-music-13.mp3' },
-            { title: 'Access Denied Remix', artist: 'Firewall Breach', url: 'https://archive.org/download/8bit-music-collection/8bit-music-collection/8bit-music-12.mp3' },
+            { title: 'Public Test Track 1 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
+            { title: 'Public Test Track 2 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
+            { title: 'Public Test Track 3 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
+            { title: 'Public Test Track 4 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
         ];
         
         let playerState = {
@@ -417,7 +421,7 @@
         }
         
         // -----------------------
-        // 4. API 和辅助函数 (不变或微调)
+        // 4. API 和辅助函数 (IP/地理位置修复已包含)
         // -----------------------
         
         function formatTime(seconds) {
@@ -427,6 +431,7 @@
             return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
         }
         
+        // 确保 stats 模块在数据加载前能显示“加载中...”状态
         function renderStats() {
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
@@ -436,11 +441,98 @@
             `).join('');
         }
         
-        function renderCommands() { /* ... 不变 ... */ }
-        function updateCommands() { /* ... 不变 ... */ }
-        function updateStatDisplay(id, value, isError = false) { /* ... 不变 ... */ }
-        function generateRandomLog() { /* ... 不变 ... */ }
-        function addLogEntry(manualLog = null) { /* ... 不变 ... */ }
+        function renderCommands() {
+            commandList.innerHTML = initialCommands.map(cmd => {
+                let statusClass = '';
+                switch (cmd.status) {
+                    case 'COMPLETE': statusClass = 'status-complete'; break;
+                    case 'PENDING': statusClass = 'status-pending'; break;
+                    case 'ERROR': statusClass = 'status-error'; break;
+                    case 'ABORTED': statusClass = 'status-aborted'; break;
+                    default: statusClass = 'status-pending';
+                }
+                return `<div class="command-item"><span class="command-name">${cmd.name}</span><span class="command-status ${statusClass}">${cmd.status}</span></div>`;
+            }).join('');
+        }
+
+        function updateCommands() {
+            initialCommands.forEach(cmd => {
+                const rand = Math.random();
+                if (cmd.status === 'PENDING') {
+                    if (rand < 0.3) { cmd.status = 'COMPLETE'; } 
+                    else if (rand > 0.9) { cmd.status = 'ERROR'; }
+                } else if (cmd.status === 'COMPLETE' || cmd.status === 'ERROR' || cmd.status === 'ABORTED') {
+                    if (rand > 0.8) { cmd.status = 'PENDING'; }
+                }
+            });
+            renderCommands();
+        }
+
+        function updateStatDisplay(id, value, isError = false) { 
+            const entry = initialStats.find(s => s.id === id);
+            const element = document.getElementById(`${id}-value`);
+            if (entry && element) {
+                entry.value = value;
+                const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
+                element.textContent = displayValue + entry.unit;
+                
+                if (isError) { element.style.color = 'red'; } 
+                else { element.style.color = 'var(--text-color)'; }
+            }
+        }
+        
+        function generateRandomIP(internal = true) { return internal ? `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}` : `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`; }
+        function generateRandomPort() { return Math.floor(Math.random() * 60000) + 1024; }
+        function generateRandomHash() { return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase(); }
+        function generateRandomFileName() {
+            const names = ['config', 'backup', 'temp', 'log', 'image', 'db', 'user', 'main', 'script'];
+            const extensions = ['.dat', '.bin', '.tmp', '.json', '.sh', '.py', '.txt', '.enc'];
+            return `${names[Math.floor(Math.random() * names.length)]}_${generateRandomHash().substring(0, 4)}${extensions[Math.floor(Math.random() * extensions.length)]}`;
+        }
+
+        function generateRandomLog() {
+            const types = [
+                { type: 'SUCCESS', weight: 35, fn: () => Math.random() < 0.5 ? `系统核心进程 PID:${Math.floor(Math.random() * 9999)} 状态: 运行中` : `资源分配给 线程ID: 0x${generateRandomHash().substring(0, 8)} 状态: 完成` },
+                { type: 'INFO', weight: 25, fn: () => Math.random() < 0.6 ? `[连接] 建立与 ${generateRandomIP(false)}:${generateRandomPort()} 的外部连接` : `[文件] 文件 ${generateRandomFileName()} 校验成功。哈希: ${generateRandomHash()}` },
+                { type: 'WARNING', weight: 20, fn: () => `[警告] 内存使用率达到 95%。请释放资源!` },
+                { type: 'ATTEMPT', weight: 10, fn: () => `[尝试] 发现来自 ${generateRandomIP(false)} 端口 ${generateRandomPort()} 的未经授权访问尝试` },
+                { type: 'ERROR', weight: 5, fn: () => `[错误] 进程崩溃: 致命错误 0x${generateRandomHash().substring(0, 4)}` },
+                { type: 'DATA', weight: 5, fn: () => `[数据] 传输 ${Math.floor(Math.random() * 1000)} MB 数据包到内部服务器 ${generateRandomIP()}... 状态: 成功` }
+            ];
+
+            let totalWeight = types.reduce((sum, item) => sum + item.weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (const logType of types) {
+                random -= logType.weight;
+                if (random <= 0) {
+                    let logText = logType.fn();
+                    return { text: ` <${logType.type}> ${logText}`, class: logType.type.toLowerCase() };
+                }
+            }
+            return { text: ' <INFO> 系统状态正常', class: 'info' }; 
+        }
+
+        function addLogEntry(manualLog = null) {
+            const now = new Date();
+            const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            const log = manualLog || generateRandomLog(); 
+            
+            const newLog = document.createElement('div');
+            newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; 
+            newLog.textContent = `[${timeString}]${log.text}`;
+            
+            if (logFeed.firstChild) {
+                logFeed.insertBefore(newLog, logFeed.firstChild);
+            } else {
+                logFeed.appendChild(newLog);
+            }
+
+            while (logFeed.children.length > 25) { 
+                logFeed.removeChild(logFeed.lastChild);
+            }
+        }
         
         function fetchPublicIP() {
             updateStatDisplay('ip', '查询中...');
@@ -464,6 +556,7 @@
             updateStatDisplay('country', '定位中...');
             updateStatDisplay('city', '定位中...');
             
+            // 【已修复】确保使用 HTTPS 协议
             const geoApiUrl = `https://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
             
             fetch(geoApiUrl)
@@ -490,8 +583,50 @@
                 });
         }
         
-        function fetchWeather(city) { /* ... 不变 ... */ }
-        function createParticles() { /* ... 不变 ... */ }
+        function fetchWeather(city) {
+            updateStatDisplay('temp', '查询中...');
+            updateStatDisplay('weather', '查询中...');
+
+            const weatherApiUrl = `https://wttr.in/${city}?format=j1&lang=zh`;
+            
+            fetch(weatherApiUrl)
+                .then(response => response.ok ? response.json() : Promise.reject('Weather API 查询失败'))
+                .then(data => {
+                    if (data && data.current_condition && data.current_condition.length > 0) {
+                        const current = data.current_condition[0];
+                        const tempString = current.temp_C.replace('C', '').trim();
+                        const temp = parseFloat(tempString);
+                        const description = current.lang_zh[0].value || current.weatherDesc[0].value || '未知';
+                        
+                        updateStatDisplay('temp', temp);
+                        updateStatDisplay('weather', description);
+                    } else {
+                        updateStatDisplay('temp', '数据为空', true);
+                        updateStatDisplay('weather', '无法获取', true);
+                    }
+                })
+                .catch(error => {
+                    console.error("获取天气失败:", error);
+                    updateStatDisplay('temp', '查询错误', true);
+                    updateStatDisplay('weather', '查询错误', true);
+                });
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const numParticles = 70; 
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.animationDuration = `${Math.random() * 8 + 4}s`; 
+                particle.style.animationDelay = `-${Math.random() * 12}s`; 
+                particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
+                
+                container.appendChild(particle);
+            }
+        }
 
 
         // -----------------------
