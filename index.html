@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V24 (强制初始化 & 模拟数据)</title>
+    <title>项目: 访客追踪控制台 // V25 (确保所有模拟数据立即渲染)</title>
     <style>
         /* ---------------------------------- */
         /* 1. 颜色、字体和布局 (NEON-MATRIX 主题) */
@@ -107,7 +107,7 @@
             font-family: 'Audiowide', cursive;
             font-size: clamp(0.9em, 3vw, 1.3em);
             font-weight: 700;
-            /* 将访客数据的值强制设为主色，使其在 "加载中" 状态下也能发光 */
+            /* 强制设为主色，使其在 "加载中" 状态下也能发光 */
             color: var(--main-color); 
             text-shadow: var(--shadow-glow);
             white-space: normal;
@@ -118,7 +118,6 @@
             height: clamp(200px, 35vh, 350px); 
             overflow-y: scroll;
             border: 2px solid var(--accent-color); 
-            /* 强制背景色，使其不完全是黑色，便于区分内容 */
             background: rgba(0, 0, 0, 0.9);         
             padding: 10px;
             font-size: clamp(0.75em, 2vw, 0.9em);   
@@ -130,7 +129,6 @@
         }
         
         /* 日志颜色 */
-        /* 修复：日志默认颜色应为 text-color，以确保显示 */
         .log-line { color: var(--text-color); }
         .log-line.error { color: #ff5555; font-weight: bold; }
         .log-line.success { color: #00ff99; } 
@@ -158,7 +156,7 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V24">项目: 访客追踪控制台 V24</h1>
+        <h1 data-text="项目: 访客追踪控制台 V25">项目: 访客追踪控制台 V25</h1>
         
         <div class="main-panel">
             
@@ -261,11 +259,15 @@
         // -----------------------
         
         function updateRandomData() {
+            // 只更新时间
             updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
+            
+            // 随机更新其他数据
+            randomlyUpdateVisitorData();
+
             updateCommands(); 
             updatePlayerUI(); 
             addLogEntry();
-            simulateVisitorData();
         }
         
         // -----------------------
@@ -282,11 +284,35 @@
             `).join('');
         }
         
-        function simulateVisitorData() {
-            // 确保 IP 随机更新
+        /**
+         * 强制所有访客数据字段立即填充随机模拟值 (仅在初始化时调用)
+         */
+        function initializeVisitorData() {
+            const country = SIM_COUNTRIES[Math.floor(Math.random() * SIM_COUNTRIES.length)];
+            const city = SIM_CITIES[Math.floor(Math.random() * SIM_CITIES.length)];
+            const weather = SIM_WEATHERS[Math.floor(Math.random() * SIM_WEATHERS.length)];
+            const temp = (Math.random() * 25 + 10); // 10C to 35C
+
+            // 1. 设置 IP (立即更新)
             const randomIP = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
             updateStatDisplay('ip', randomIP, false);
+            
+            // 2. 设置 国家/城市/天气/温度 (立即更新)
+            updateStatDisplay('country', country, false);
+            updateStatDisplay('city', city, false);
+            updateStatDisplay('temp', temp, false);
+            updateStatDisplay('weather', weather, false);
+        }
 
+        /**
+         * 随机更新部分访客数据 (在 setInterval 中调用)
+         */
+        function randomlyUpdateVisitorData() {
+            // IP 每秒更新
+            const randomIP = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            updateStatDisplay('ip', randomIP, false);
+            
+            // 每 10 秒切换一次国家/城市/天气
             if (Math.random() < 0.1) {
                 const country = SIM_COUNTRIES[Math.floor(Math.random() * SIM_COUNTRIES.length)];
                 const city = SIM_CITIES[Math.floor(Math.random() * SIM_CITIES.length)];
@@ -294,11 +320,13 @@
                 updateStatDisplay('city', city, false);
             }
             
+            // 温度随机波动
             const currentTemp = parseFloat(initialStats.find(s => s.id === 'temp').value.replace(' °C', '')) || 20;
             const newTemp = currentTemp + (Math.random() * 2 - 1); 
             const finalTemp = Math.min(35, Math.max(10, newTemp));
             updateStatDisplay('temp', finalTemp.toFixed(1), false);
             
+            // 天气随机切换
             if (Math.random() < 0.05) {
                 const weather = SIM_WEATHERS[Math.floor(Math.random() * SIM_WEATHERS.length)];
                 updateStatDisplay('weather', weather, false);
@@ -349,13 +377,16 @@
 
 
         // -----------------------
-        // 6. 强制初始化函数 (替代 DOMContentLoaded)
+        // 6. 强制初始化函数
         // -----------------------
         function initializeConsole() {
-            // 渲染所有静态结构
+            // 渲染所有静态结构 (确保 ID 存在)
             renderStats(); 
             renderCommands(); 
             
+            // **【V25 修复点】** 强制初始化所有访客数据字段
+            initializeVisitorData();
+
             // 初始化音频播放器
             initAudioPlayer();
             renderPlayer(audioConsoleDesktop); 
@@ -364,19 +395,16 @@
             // 启动粒子效果
             createParticles();
             
-            // 立即填充模拟数据
-            simulateVisitorData();
-            
             // 立即填充初始日志
             addLogEntry({ text: ' <SUCCESS> 核心控制台已初始化', class: 'success' });
-            addLogEntry({ text: ' <INFO> 外部 API 访问受限，已切换至本地模拟数据模式 (V24)。', class: 'info' });
+            addLogEntry({ text: ' <INFO> 外部 API 访问受限，已切换至本地模拟数据模式 (V25)。', class: 'info' });
             addLogEntry({ text: ' <DATA> 准备音频流 CDN 连接...', class: 'info' });
             
             // 启动定时器
             setInterval(updateRandomData, 1000); 
         }
 
-        // 立即调用初始化函数，绕过严格的 DOMContentLoaded 检查
+        // 立即调用初始化函数
         initializeConsole();
     </script>
 </body>
