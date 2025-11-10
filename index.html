@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT: NEON-MATRIX // ZENITH CONSOLE V3</title>
+    <title>PROJECT: NEON-MATRIX // ZENITH CONSOLE V4</title>
     <style>
         /* ---------------------------------- */
-        /* 1. 全局样式和未来主义字体 */
+        /* 1. 全局样式和未来主义字体 - 颜色修改 */
         /* ---------------------------------- */
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
             --bg-color: #000000;
-            --main-color: #00ffc8; /* 亮青色 */
-            --accent-color: #ff00ff; /* 品红色 */
-            --text-color: #e0f7fa;
-            --border-color: rgba(0, 255, 200, 0.4);
-            --shadow-glow: 0 0 5px var(--main-color), 0 0 15px var(--main-color), 0 0 25px rgba(0, 255, 200, 0.6);
+            --main-color: #ff9900;     /* 霓虹橙 - 新主色 */
+            --accent-color: #9900ff;   /* 紫罗兰/品红 - 新强调色 */
+            --text-color: #ffe8cc;
+            --border-color: rgba(255, 153, 0, 0.4);
+            --shadow-glow: 0 0 5px var(--main-color), 0 0 15px var(--main-color), 0 0 25px rgba(255, 153, 0, 0.6);
         }
 
         * {
@@ -33,7 +33,7 @@
             overflow-x: hidden;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* 顶部对齐，更适合滚动 */
+            align-items: flex-start;
             padding-top: 20px;
         }
         
@@ -48,7 +48,6 @@
             display: grid;
             gap: 15px;
             z-index: 10;
-            /* 手机默认单列 */
             grid-template-columns: 1fr; 
         }
 
@@ -58,40 +57,79 @@
             gap: 15px;
         }
         
-        /* 平板和桌面布局 (768px以上) */
         @media (min-width: 768px) {
             .container {
-                grid-template-columns: 2.5fr 1fr; /* 切换为双列 */
+                grid-template-columns: 2.5fr 1fr;
                 padding: 40px;
                 gap: 25px;
             }
             body {
-                align-items: center; /* 居中对齐 */
+                align-items: center;
             }
         }
 
         /* ---------------------------------- */
-        /* 3. 字体和标题 (流体排版) */
+        /* 3. 字体和标题 (更强的 Glitch 效果) */
         /* ---------------------------------- */
         h1 {
             font-family: 'Audiowide', cursive;
-            color: var(--accent-color);
+            color: var(--main-color);
             text-align: center;
-            /* clamp(最小字体, 视口缩放, 最大字体) */
             font-size: clamp(1.8em, 5vw, 4em); 
             margin-bottom: 20px;
-            text-shadow: 0 0 8px var(--accent-color), 0 0 15px var(--accent-color);
+            /* 增强主标题的光晕效果 */
+            text-shadow: 0 0 10px var(--main-color), 0 0 20px var(--main-color);
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
+            position: relative;
         }
+        
+        /* Glitch 效果的伪元素 */
+        h1:before, h1:after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            text-shadow: 0 0 5px var(--accent-color);
+            clip: rect(0, 0, 0, 0);
+        }
+
+        h1:after {
+            left: 2px;
+            text-shadow: -1px 0 var(--main-color);
+            animation: glitch-after 2s infinite alternate-reverse;
+        }
+
+        h1:before {
+            left: -2px;
+            text-shadow: 1px 0 var(--accent-color);
+            animation: glitch-before 3s infinite alternate-reverse;
+        }
+        
+        @keyframes glitch-before {
+            0% { clip: rect(20px, 9999px, 80px, 0); transform: translate(4px, 0); }
+            30% { clip: rect(60px, 9999px, 120px, 0); transform: translate(-4px, 0); }
+            60% { clip: rect(10px, 9999px, 50px, 0); transform: translate(3px, 0); }
+            100% { clip: rect(70px, 9999px, 110px, 0); transform: translate(-2px, 0); }
+        }
+
+        @keyframes glitch-after {
+            0% { clip: rect(40px, 9999px, 100px, 0); transform: translate(-2px, 0); }
+            40% { clip: rect(50px, 9999px, 110px, 0); transform: translate(5px, 0); }
+            80% { clip: rect(90px, 9999px, 130px, 0); transform: translate(-3px, 0); }
+            100% { clip: rect(30px, 9999px, 70px, 0); transform: translate(1px, 0); }
+        }
+
 
         h2 {
             font-size: clamp(1.1em, 2.5vw, 1.3em);
-            color: var(--main-color);
-            text-shadow: var(--shadow-glow);
+            color: var(--accent-color); /* H2使用强调色 */
+            text-shadow: 0 0 5px var(--accent-color);
             margin-bottom: 10px;
             padding-bottom: 5px;
-            border-bottom: 1px dashed rgba(0, 255, 200, 0.2);
+            border-bottom: 1px dashed rgba(255, 0, 255, 0.2);
         }
         
         /* ---------------------------------- */
@@ -102,14 +140,14 @@
             border: 1px solid var(--border-color);
             padding: 15px;
             border-radius: 6px;
-            box-shadow: 0 0 15px rgba(0, 255, 200, 0.2);
+            box-shadow: 0 0 15px rgba(255, 153, 0, 0.2);
             filter: drop-shadow(0 0 3px var(--main-color));
             transition: transform 0.3s ease-out, box-shadow 0.3s, filter 0.3s;
         }
         
         .module:hover {
             transform: translateY(-3px) scale(1.005);
-            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.4); 
+            box-shadow: 0 5px 20px rgba(153, 0, 255, 0.4); 
             filter: drop-shadow(0 0 8px var(--accent-color));
         }
 
@@ -117,7 +155,6 @@
         /* 5. 仪表盘和数据值样式 */
         /* ---------------------------------- */
         .stats-grid {
-            /* 保证在小屏幕上也能良好适配 */
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
             gap: 10px;
@@ -125,16 +162,9 @@
 
         .stat-item {
             padding: 10px;
-            border-left: 3px solid var(--accent-color);
+            border-left: 3px solid var(--main-color);
         }
-
-        .stat-item h3 {
-            font-size: 0.7em;
-            color: var(--main-color);
-            opacity: 0.7;
-            margin-bottom: 5px;
-        }
-
+        
         .stat-value {
             font-family: 'Audiowide', cursive;
             font-size: clamp(1.4em, 3vw, 2em);
@@ -144,10 +174,28 @@
         }
         
         /* ---------------------------------- */
-        /* 6. 活动日志样式 */
+        /* 6. 粒子背景 (改为橙色/黄色调) */
+        /* ---------------------------------- */
+        .particle {
+            background: linear-gradient(to bottom, rgba(255, 153, 0, 0.8), rgba(255, 153, 0, 0));
+            opacity: 0.6;
+            animation: code-rain linear infinite;
+        }
+
+        /* ---------------------------------- */
+        /* 7. 进度条颜色 */
+        /* ---------------------------------- */
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+            transition: width 0.8s ease-out;
+        }
+
+        /* ---------------------------------- */
+        /* 其他样式保持 V3 的响应式和功能不变 */
         /* ---------------------------------- */
         .log-feed {
-            /* 移动设备上使用百分比高度或VH */
             height: clamp(200px, 35vh, 350px); 
             overflow-y: scroll;
             border: 1px dashed var(--accent-color);
@@ -155,71 +203,26 @@
             font-size: clamp(0.7em, 2vw, 0.85em);
             line-height: 1.6;
             background: rgba(0, 0, 0, 0.7);
-            /* 美化滚动条 (仅 Webkit) */
-            &::-webkit-scrollbar { width: 5px; }
             &::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
         }
         
-        .log-line.error { color: #ff5555; font-weight: bold; }
-        .log-line.success { color: var(--main-color); }
-
-        /* ---------------------------------- */
-        /* 7. 导航菜单样式 (确保可点击区域足够大) */
-        /* ---------------------------------- */
         .nav-link {
-            padding: 15px 10px; /* 增大垂直填充 */
-            font-size: clamp(0.9em, 2vw, 1em);
-            margin-bottom: 8px;
-            /* 悬停时的 Glitch 效果 */
-            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--accent-color);
         }
 
         .nav-link:hover {
-            animation: glitch-anim 0.3s infinite;
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-color);
         }
         
-        /* ---------------------------------- */
-        /* 8. 粒子背景和 Glitch 动画 (与 V2 相同) */
-        /* ---------------------------------- */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 5;
-            background: radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 100%);
+        .only-desktop { display: none; }
+        @media (min-width: 768px) {
+            .only-desktop { display: block; }
+            .only-mobile { display: none; }
         }
-
-        .particle {
-            position: absolute;
-            width: 1px;
-            height: 20px;
-            background: linear-gradient(to bottom, rgba(0, 255, 200, 0.8), rgba(0, 255, 200, 0));
-            opacity: 0.6;
-            animation: code-rain linear infinite;
-        }
-
-        @keyframes code-rain {
-            0% { transform: translateY(-100vh) scaleY(1); opacity: 0.8; }
-            100% { transform: translateY(100vh) scaleY(0.5); opacity: 0; }
-        }
-        
-        .glitch {
-            animation: glitch-anim 2.5s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch-anim {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-3px, -3px); }
-            60% { transform: translate(4px, 4px); }
-            80% { transform: translate(-2px, -4px); }
-            100% { transform: translate(3px, 1px); }
-        }
-
     </style>
 </head>
 <body>
@@ -228,7 +231,7 @@
 
     <div class="container">
         
-        <h1 class="glitch">PROJECT: NEON-MATRIX // ZENITH CONSOLE V3</h1>
+        <h1 data-text="PROJECT: NEON-MATRIX // ZENITH CONSOLE V4">PROJECT: NEON-MATRIX // ZENITH CONSOLE V4</h1>
 
         <div class="main-panel">
             
@@ -273,13 +276,15 @@
 
     <script>
         // -----------------------
-        // 1. 初始数据模型
+        // 1. 初始数据模型 - 新增数据模块
         // -----------------------
         const initialStats = [
             { id: 'cpu', name: '处理器负载 (CPU Load)', value: 87.4, unit: '%', status: 'High Performance Mode' },
             { id: 'mem', name: '内存使用率 (Memory Usage)', value: 12.08, unit: ' GB', status: 'Optimal' },
             { id: 'ping', name: '网络延迟 (Ping Latency)', value: 4.5, unit: ' ms', status: 'Sub-Orbital Link' },
             { id: 'temp', name: '核心温度 (Core Temp)', value: 62.3, unit: ' °C', status: 'Nominal Deviation' },
+            { id: 'key', name: '加密密钥状态 (Key Status)', value: 128, unit: ' bit', status: 'AES-256 Active' },
+            { id: 'dist', name: '行星距离 (Mars Dist)', value: 5.54, unit: ' AU', status: 'Trajectory Confirmed' },
         ];
 
         const initialProjects = [
@@ -313,12 +318,13 @@
             statsGrid.innerHTML = initialStats.map(stat => `
                 <div class="stat-item">
                     <h3>${stat.name}</h3>
-                    <div class="stat-value ${stat.id === 'cpu' ? 'glitch' : ''}" id="${stat.id}-value">${stat.value}${stat.unit}</div>
+                    <div class="stat-value ${(stat.id === 'cpu' || stat.id === 'key') ? 'glitch' : ''}" id="${stat.id}-value">${stat.id === 'key' ? stat.value.toFixed(0) : stat.value.toFixed(stat.id === 'mem' ? 2 : 1)}${stat.unit}</div>
                 </div>
             `).join('');
         }
 
         function renderProgress(container) {
+            if (!container) return; 
             container.innerHTML = initialProjects.map(project => `
                 <div class="progress-item">
                     <h4>${project.name}</h4>
@@ -335,7 +341,6 @@
         // -----------------------
 
         function updateRandomData() {
-            // A. 更新系统状态 (随机波动)
             initialStats.forEach(stat => {
                 let change = (Math.random() - 0.5) * 5; 
                 
@@ -345,6 +350,13 @@
                 } else if (stat.id === 'temp') {
                     change = (Math.random() - 0.5) * 1.0;
                     stat.value = Math.max(50.0, stat.value + change);
+                } else if (stat.id === 'key') {
+                    // Key Status 波动小且离散
+                    change = Math.random() > 0.9 ? (Math.random() > 0.5 ? 64 : -64) : 0;
+                    stat.value = Math.max(64, Math.min(256, stat.value + change));
+                } else if (stat.id === 'dist') {
+                    change = (Math.random() - 0.5) * 0.05; // 距离波动极小
+                    stat.value = Math.max(0.3, stat.value + change);
                 }
                 else {
                     stat.value = Math.max(10.0, Math.min(99.9, stat.value + change));
@@ -352,12 +364,14 @@
                 
                 const element = document.getElementById(`${stat.id}-value`);
                 if (element) {
-                    element.textContent = stat.value.toFixed(stat.id === 'mem' ? 2 : 1) + stat.unit;
+                    element.textContent = stat.id === 'key' 
+                        ? stat.value.toFixed(0) + stat.unit
+                        : stat.value.toFixed(stat.id === 'mem' ? 2 : 1) + stat.unit;
                 }
             });
 
-            // B. 更新项目进度 (随机推进)
             [progressContainerDesktop, progressContainerMobile].forEach(container => {
+                if (!container) return;
                 const progressFills = container.querySelectorAll('.progress-fill');
                 const progressTexts = container.querySelectorAll('.progress-item p');
 
@@ -376,8 +390,6 @@
                 });
             });
 
-
-            // C. 实时添加活动日志
             addLogEntry();
         }
 
@@ -402,7 +414,7 @@
                 logFeed.appendChild(newLog);
             }
 
-            while (logFeed.children.length > 25) { // 稍微增加日志容量
+            while (logFeed.children.length > 25) { 
                 logFeed.removeChild(logFeed.lastChild);
             }
         }
@@ -410,7 +422,6 @@
         // -----------------------
         // 4. 粒子/代码雨动画
         // -----------------------
-
         function createParticles() {
             const container = document.getElementById('particle-container');
             const numParticles = 70; 
@@ -432,11 +443,10 @@
         // -----------------------
         // 5. 初始化和循环
         // -----------------------
-
         document.addEventListener('DOMContentLoaded', () => {
             renderStats();
-            renderProgress(progressContainerDesktop); // 渲染到桌面容器
-            renderProgress(progressContainerMobile); // 渲染到移动容器
+            renderProgress(progressContainerDesktop);
+            renderProgress(progressContainerMobile);
             createParticles();
             
             setInterval(updateRandomData, 1200); 
@@ -444,3 +454,5 @@
         });
 
     </script>
+</body>
+</html>
