@@ -1,488 +1,595 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>director_Carter的主页</title>
-	<!-- Material Icons -->
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<style>
-		:root {
-			--md-primary: #6750A4;
-			--md-on-primary: #FFFFFF;
-			--md-primary-container: #EADDFF;
-			--md-on-primary-container: #21005D;
-			--md-surface: #FEF7FF;
-			--md-on-surface: #1C1B1F;
-			--md-surface-variant: #E7E0EC;
-			--md-on-surface-variant: #49454F;
-			--md-outline: #79747E;
-		}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Director's Hub - 终端档案</title>
+    <style>
+        /* --- 1. CSS 变量与通用样式 --- */
+        :root {
+            /* 默认霓虹绿主题 */
+            --color-primary: #00ff41; /* 强调色 */
+            --color-secondary: #00641a; /* 辅助色 */
+            --color-background: #0d1117; /* 背景色 */
+            --color-text: #e1e4e8; /* 文字色 */
+            --color-border: #30363d; /* 边框色 */
+            --font-mono: 'Space Mono', 'Courier New', monospace;
+            --glitch-animation: none;
+        }
 
-		body.dark-theme {
-			--md-primary: #D0BCFF;
-			--md-on-primary: #381E72;
-			--md-primary-container: #4F378B;
-			--md-on-primary-container: #EADDFF;
-			--md-surface: #141218;
-			--md-on-surface: #E6E1E5;
-			--md-surface-variant: #49454F;
-			--md-on-surface-variant: #CAC4D0;
-			--md-outline: #938F99;
-		}
+        /* 黑暗模式/默认主题 */
+        .dark-mode {
+            --color-primary: #00ff41;
+            --color-secondary: #00641a;
+            --color-text: #e1e4e8;
+        }
 
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
+        /* 酷炫的粉色彩蛋主题 */
+        .pink-mode {
+            --color-primary: #ff0099;
+            --color-secondary: #99005c;
+            --color-text: #fff;
+        }
 
-		body {
-			font-family: 'Roboto', 'Noto Sans SC', sans-serif;
-			background-color: var(--md-surface);
-			color: var(--md-on-surface);
-			line-height: 1.6;
-			transition: background-color 0.3s, color 0.3s;
-		}
+        body {
+            font-family: var(--font-mono);
+            background-color: var(--color-background);
+            color: var(--color-text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            transition: background-color 0.5s, color 0.5s;
+        }
 
-		/* 顶部应用栏 */
-		.top-app-bar {
-			display: flex;
-			align-items: center;
-			padding: 16px 24px;
-			background-color: var(--md-primary);
-			color: var(--md-on-primary);
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		}
+        section {
+            padding: 80px 5%;
+            border-bottom: 1px solid var(--color-border);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-		.app-bar-title {
-			font-size: 22px;
-			font-weight: 500;
-			margin-left: 16px;
-		}
+        /* 标题与代码块样式 */
+        h1, h2, h3 {
+            color: var(--color-primary);
+            text-shadow: 0 0 5px var(--color-primary);
+        }
 
-		/* 主要内容区域 */
-		.main-content {
-			padding: 24px;
-			max-width: 1200px;
-			margin: 0 auto;
-		}
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
 
-		/* 显示区域 */
-		.hero-section {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			text-align: center;
-			padding: 40px 24px;
-			background-color: var(--md-primary-container);
-			color: var(--md-on-primary-container);
-			border-radius: 16px;
-			margin-bottom: 32px;
-		}
+        a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px var(--color-primary);
+        }
 
-		.avatar {
-			width: 120px;
-			height: 120px;
-			border-radius: 60px;
-			background-color: var(--md-primary);
-			color: var(--md-on-primary);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			margin-bottom: 20px;
-			cursor: pointer;
-			transition: transform 0.2s;
-			overflow: hidden;
-		}
+        /* --- 2. 顶部启动区 --- */
+        #header {
+            text-align: center;
+            padding-top: 100px;
+            padding-bottom: 50px;
+        }
 
-		.avatar img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-		}
+        #header h1 {
+            font-size: 2.5em;
+            overflow: hidden; /* 隐藏超出容器的文本 */
+            border-right: .15em solid var(--color-primary); /* 光标效果 */
+            white-space: nowrap; /* 不换行 */
+            margin: 0 auto 10px;
+            letter-spacing: .15em;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret .75s step-end infinite;
+        }
 
-		.avatar:active {
-			transform: scale(0.95);
-		}
+        /* 打字机动画 */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
 
-		.hero-title {
-			font-size: 28px;
-			font-weight: 500;
-			margin-bottom: 12px;
-		}
+        /* 光标闪烁动画 */
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--color-primary); }
+        }
 
-		.hero-description {
-			font-size: 16px;
-			max-width: 600px;
-			opacity: 0.9;
-		}
+        .avatar-container {
+            width: 150px;
+            height: 150px;
+            border: 3px solid var(--color-primary);
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 0 20px var(--color-secondary);
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+        .avatar-container:hover {
+            box-shadow: 0 0 35px var(--color-primary);
+        }
 
-		/* 卡片组件 */
-		.card {
-			background-color: var(--md-surface-variant);
-			border-radius: 12px;
-			padding: 24px;
-			margin-bottom: 24px;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		}
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
 
-		.card-title {
-			font-size: 22px;
-			font-weight: 500;
-			margin-bottom: 16px;
-			color: var(--md-on-surface-variant);
-		}
+        /* 导航栏 */
+        .navbar {
+            text-align: center;
+            margin-top: 30px;
+        }
 
-		/* 网格布局 */
-		.grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-			gap: 20px;
-			margin-top: 20px;
-		}
+        .navbar a {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: 1px solid var(--color-primary);
+            display: inline-block;
+            transition: background-color 0.3s, transform 0.3s;
+        }
 
-		/* 列表项 - 增大上移动画距离 */
-		.list-item {
-			display: flex;
-			align-items: center;
-			padding: 16px;
-			border-radius: 12px;
-			background-color: var(--md-surface);
-			color: var(--md-on-surface);
-			cursor: pointer;
-			transition: all 0.2s ease;
-			text-decoration: none;
-			margin-bottom: 8px;
-			border: 1px solid transparent;
-			position: relative;
-		}
+        .navbar a:hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-3px);
+            text-shadow: none;
+        }
 
-		.list-item:hover {
-			background-color: rgba(0, 0, 0, 0.04);
-		}
+        /* --- 3. 身份档案区 --- */
+        .info-box {
+            border: 2px solid var(--color-primary);
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 0 15px var(--color-secondary) inset;
+            position: relative;
+        }
 
-		.list-item:active {
-			background-color: rgba(0, 0, 0, 0.08);
-			transform: translateY(-5px);
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		}
+        .glitch-text {
+            display: inline-block;
+            animation: var(--glitch-animation);
+        }
 
-		.list-icon {
-			margin-right: 16px;
-			color: var(--md-primary);
-			font-size: 24px;
-		}
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: 0 0 var(--color-primary); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-1px, -1px); }
+            60% { transform: translate(3px, 1px); color: red; }
+            80% { transform: translate(1px, -3px); }
+            100% { transform: translate(0); color: var(--color-text); }
+        }
 
-		.list-content {
-			flex: 1;
-		}
+        .alert-box {
+            background-color: #8b0000;
+            border: 1px solid red;
+            padding: 15px;
+            margin-top: 25px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            max-height: 50px; /* 初始收起状态 */
+        }
 
-		.list-title {
-			font-weight: 500;
-			margin-bottom: 4px;
-		}
+        .alert-box.expanded {
+            max-height: 200px;
+        }
 
-		.list-subtitle {
-			font-size: 14px;
-			color: var(--md-on-surface-variant);
-			line-height: 1.4;
-		}
+        .alert-box h3 {
+            color: #ff4d4d;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
 
-		/* 底部区域 */
-		.footer {
-			text-align: center;
-			padding: 24px;
-			color: var(--md-on-surface-variant);
-			font-size: 14px;
-			border-top: 1px solid var(--md-outline);
-			margin-top: 40px;
-		}
+        .alert-box .detail {
+            margin-top: 10px;
+            font-size: 0.9em;
+            border-top: 1px dashed #ff4d4d;
+            padding-top: 10px;
+        }
+        
+        /* --- 4. 网络矩阵区 (社交卡片) --- */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
 
-		/* 主题切换按钮 */
-		.theme-toggle {
-			position: fixed;
-			bottom: 24px;
-			right: 24px;
-			width: 56px;
-			height: 56px;
-			border-radius: 28px;
-			background-color: var(--md-primary);
-			color: var(--md-on-primary);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-			cursor: pointer;
-			z-index: 100;
-			transition: transform 0.2s;
-		}
+        .card {
+            background-color: var(--color-background);
+            border: 1px solid var(--color-primary);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 10px var(--color-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
 
-		.theme-toggle:hover {
-			transform: scale(1.1);
-		}
+        .card:hover {
+            box-shadow: 0 0 25px var(--color-primary);
+            transform: scale(1.03);
+            background-color: #1a202c;
+        }
 
-		.theme-toggle:active {
-			transform: scale(0.95);
-		}
+        .card h3 {
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
 
-		/* 彩蛋弹窗样式 */
-		.easter-egg-modal {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0, 0, 0, 0.7);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			z-index: 1000;
-			opacity: 0;
-			visibility: hidden;
-			transition: opacity 0.3s, visibility 0.3s;
-		}
+        .tag {
+            background-color: red;
+            color: #fff;
+            padding: 2px 8px;
+            font-size: 0.7em;
+            margin-left: 10px;
+            animation: pulse 1s infinite;
+        }
 
-		.easter-egg-modal.show {
-			opacity: 1;
-			visibility: visible;
-		}
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
 
-		.easter-egg-content {
-			background-color: var(--md-surface);
-			color: var(--md-on-surface);
-			padding: 30px;
-			border-radius: 16px;
-			text-align: center;
-			max-width: 80%;
-			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-		}
+        /* GitHub特殊气泡 */
+        .github-msg {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #ffcc00;
+            padding: 10px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        .card.github:hover .github-msg {
+            opacity: 1;
+        }
 
-		.easter-egg-content h2 {
-			font-size: 24px;
-			margin-bottom: 16px;
-			color: var(--md-primary);
-		}
+        /* 复制提示 */
+        .copy-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--color-primary);
+            color: var(--color-background);
+            padding: 15px 30px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            font-size: 1.5em;
+            z-index: 1000;
+        }
 
-		.easter-egg-content p {
-			margin-bottom: 24px;
-		}
+        /* --- 5. 彩蛋区 --- */
+        #egg-trigger {
+            text-align: center;
+            padding: 50px 0;
+        }
+        .trigger-element {
+            display: inline-block;
+            color: var(--color-text);
+            font-size: 1em;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            transition: all 0.2s;
+        }
+        .trigger-element:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px var(--color-secondary);
+        }
 
-		.easter-egg-close {
-			background-color: var(--md-primary);
-			color: var(--md-on-primary);
-			border: none;
-			padding: 10px 20px;
-			border-radius: 8px;
-			cursor: pointer;
-			font-weight: 500;
-			transition: background-color 0.2s;
-		}
+        .egg-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            text-align: center;
+        }
+        .egg-modal.active {
+            display: flex;
+        }
+        .egg-modal-content {
+            font-size: 2.5em;
+            color: var(--color-primary);
+            text-shadow: 0 0 20px var(--color-primary);
+            border: 5px solid var(--color-primary);
+            padding: 40px;
+            animation: border-flash 0.5s infinite alternate;
+        }
 
-		.easter-egg-close:hover {
-			background-color: var(--md-primary-container);
-			color: var(--md-on-primary-container);
-		}
+        @keyframes border-flash {
+            from { box-shadow: 0 0 30px var(--color-secondary); }
+            to { box-shadow: 0 0 50px var(--color-primary); }
+        }
 
-		/* 响应式调整 */
-		@media (max-width: 768px) {
-			.grid {
-				grid-template-columns: 1fr;
-			}
-			
-			.main-content {
-				padding: 16px;
-			}
-			
-			.hero-section {
-				padding: 32px 16px;
-			}
-			
-			.avatar {
-				width: 100px;
-				height: 100px;
-			}
-		}
-	</style>
+        /* --- 6. 底部系统状态 --- */
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--color-border);
+            font-size: 0.8em;
+        }
+
+        .mode-switch {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-left: 15px;
+        }
+
+        .switch input {opacity: 0; width: 0; height: 0;}
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-border);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--color-primary);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--color-secondary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+    </style>
 </head>
-<body>
-	<!-- 顶部应用栏 -->
-	<div class="top-app-bar">
-		<span class="material-icons" style="color: var(--md-on-primary);">person</span>
-		<h1 class="app-bar-title">director_Carter主页</h1>
-	</div>
+<body class="dark-mode">
 
-	<!-- 主要内容区域 -->
-	<div class="main-content">
-		<!-- 显示区域 -->
-		<div class="hero-section">
-			<div class="avatar" id="avatar">
-				<img src="https://director4168.github.io/TouXiang.png" alt="头像">
-			</div>
-			<h1 class="hero-title">director_Carter的主页</h1>
-			<p class="hero-description">director_Carter的主页🥰🥰，部署在Github<p>
-			<p class="hero-description">该网站也用于存储我的一些程序的更新配置数据</p>
-			<p style="margin-top: 12px; font-size: 14px; color: var(--md-on-surface-variant);">
-				<span class="material-icons" style="font-size: 14px; vertical-align: middle;">info</span>
-			若遇到访问速度过慢、被Github拒绝请求，可尝试使用科学上网（又称梯子）。
-			</p>
-			<p style="margin-top: 12px; font-size: 14px; color: var(--md-on-surface-variant);">
-				<span class="material-icons" style="font-size: 14px; vertical-align: middle;">info</span>
-			头像数据、网页源数据、配置数据均存放于Github中。
-			</p>
-		</div>
+    <div class="copy-hint" id="copy-hint">COPIED</div>
 
-		<!-- 社交账号卡片 -->
-		<div class="card">
-			<h2 class="card-title">我的社交账号（点击标签可跳转）</h2>
-			<div class="grid">
-				<a class="list-item" href="https://b23.tv/tIm8pA4" target="_blank">
-					<span class="material-icons list-icon">play_circle</span>
-					<div class="list-content">
-						<div class="list-title">哔哩哔哩(中国大陆版)</div>
-						<div class="list-subtitle">欢迎关注我的哔哔哩哔🥰🥰（求点赞投币关注🙃🙃🥰🥰）。</div>
-						<div class="list-subtitle">哔哩哔哩📺昵称: director_Carter</div>
-					</div>
-					<span class="material-icons" style="color: var(--md-outline);">open_in_new</span>
-				</a>
+    <div class="egg-modal" id="egg-modal">
+        <div class="egg-modal-content">
+            [// ACCESS GRANTED]<br>
+            恭喜你发现隐藏核心！<br>
+            <span style="font-size:0.6em;">你的快速操作已通过验证。继续保持这份好奇心，探索更多未知！</span>
+        </div>
+    </div>
 
-				<a class="list-item" href="mqqapi://card/show_pslcard?src_type=internal&version=1&uin=2705722903&card_type=person&source=qrcode" target="_blank">
-					<span class="material-icons list-icon">chat</span>
-					<div class="list-content">
-						<div class="list-title">QQ</div>
-						<div class="list-subtitle">我的QQ，但是可能会显示风险账号，因为之前模块掉了导致root被检测出来了😭😭😭😭😭😭</div>
-						<div class="list-subtitle">QQ号🐧: 2705722903</div>
-					</div>
-					<span class="material-icons" style="color: var(--md-outline);">open_in_new</span>
-				</a>
+    <section id="header">
+        <div class="avatar-container">
+            <img src="https://director4168.github.io/TouXiang.png" alt="director_Carter Avatar">
+        </div>
+        <h1 id="terminal-text">> INITIALIZING DIRECTOR_CARTER_HUB...</h1>
+        <p id="system-time">DATE: 2025-01-01 | TIME: 00:00:00</p>
+        
+        <div class="navbar">
+            <a href="#identity">// IDENTITY</a>
+            <a href="#network">// NETWORK MATRIX</a>
+            <a href="#about">// SYSTEM FOOTER</a>
+        </div>
+    </section>
 
-				<a class="list-item" href="https://bbs.binmt.cc/home.php?mod=space&uid=134138&do=profile&mobile=2" target="_blank">
-					<span class="material-icons list-icon">forum</span>
-					<div class="list-content">
-						<div class="list-title">MT论坛</div>
-						<div class="list-subtitle">我的MT论坛账号，欢迎来看我的帖子🥰🥰。</div>
-						<div class="list-subtitle">MT论坛📖昵称: director_mark</div>
-					</div>
-					<span class="material-icons" style="color: var(--md-outline);">open_in_new</span>
-				</a>
+    <section id="identity">
+        <h2>// IDENTITY_FILE: director_Carter</h2>
+        <div class="info-box">
+            <p>
+                这是 <span class="glitch-text" id="glitch-text-1">director_Carter</span> 的主页，部署于 GitHub。<br>
+                本站点也用于存储我的一些程序的更新配置数据。
+            </p>
+        </div>
 
-				<a class="list-item" href="https://github.com/director4168" target="_blank">
-					<span class="material-icons list-icon">code</span>
-					<div class="list-content">
-						<div class="list-title">GitHub</div>
-						<div class="list-subtitle">我的Github帐号，不过实际上我的大部分代码都是直接开源在压缩包里的（开源协议通常使用GPL-3），在Github基本上没有发（首先绝对不是因为懒😏😏🙃🙃）。</div>
-						<div class="list-subtitle">Github🖥🐈昵称: director4168</div>
-					</div>
-					<span class="material-icons" style="color: var(--md-outline);">open_in_new</span>
-				</a>
+        <div class="alert-box" id="alert-box">
+            <h3>[<span style="color:#ff4d4d;">!ALERT</span>] 连接警告 (CLICK TO EXPAND/COLLAPSE)</h3>
+            <div class="detail">
+                若遇到访问速度过慢、或被 Github 拒绝请求，可尝试使用科学上网（又称梯子）。
+                <p>头像数据、网页源数据、配置数据均存放于 Github 中。</p>
+            </div>
+        </div>
+    </section>
 
-				<a class="list-item" href="mailto:2705722903@qq.com">
-					<span class="material-icons list-icon">email</span>
-					<div class="list-content">
-						<div class="list-title">QQ邮箱</div>
-						<div class="list-subtitle">欢迎通过电子邮件向我提出建议、反馈bug等🙃🙃。</div>
-						<div class="list-subtitle">邮箱📮: 2705722903@qq.com</div>
-					</div>
-					<span class="material-icons" style="color: var(--md-outline);">open_in_new</span>
-				</a>
-			</div>
-		</div>
-	</div>
+    <section id="network">
+        <h2>// NETWORK_MATRIX: Social Accounts</h2>
+        <p>点击卡片即可跳转或复制信息。</p>
+        <div class="social-grid">
+            
+            <a class="card" href="https://b23.tv/tIm8pA4" target="_blank">
+                <h3>📺 BiliBili</h3>
+                <p>昵称: director_Carter</p>
+                <p>欢迎关注我的哔哔哩哔🥰🥰（求点赞投币关注🙃🙃🥰🥰）。</p>
+            </a>
 
-	<!-- 底部区域 -->
-	<div class="footer">
-		<p>© <span id="current-year">2025</span> director_Carter | 主页</p>
-	</div>
+            <div class="card" onclick="copyToClipboard('2705722903')">
+                <h3>🐧 QQ <span class="tag">[ROOT DETECTED]</span></h3>
+                <p>QQ号: <span id="qq-number">2705722903</span> (点击复制)</p>
+                <p style="color:red; font-size: 0.9em;">**风险警告:** 之前模块掉了导致 root 被检测出来了😭😭😭😭😭😭</p>
+            </div>
 
-	<!-- 主题切换按钮 -->
-	<div class="theme-toggle" id="themeToggle">
-		<span class="material-icons">dark_mode</span>
-	</div>
+            <a class="card" href="https://bbs.binmt.cc/home.php?mod=space&uid=134138&do=profile&mobile=2" target="_blank">
+                <h3>📖 MT 论坛</h3>
+                <p>昵称: director_mark</p>
+                <p>我的 MT 论坛账号，欢迎来看我的帖子🥰🥰。</p>
+            </a>
 
-	<!-- 彩蛋弹窗 -->
-	<div class="easter-egg-modal" id="easterEggModal">
-		<div class="easter-egg-content">
-			<h2>🎆 彩蛋 🎆</h2>
-			<p>恭喜你发现了这个隐藏彩蛋！</p>
-			<p>所以你居然戳我，而且是快速的戳我，估计是不小心点了一下之后发现点击有反应吧</p>
-			<button class="easter-egg-close" id="easterEggClose">关闭</button>
-		</div>
-	</div>
+            <a class="card github" href="https://github.com/director4168" target="_blank">
+                <h3>🐈 GitHub</h3>
+                <p>昵称: director4168</p>
+                <div class="github-msg">
+                    代码开源哲学：大部分代码都是直接开源在压缩包里的（GPL-3）— **不，绝对不是因为懒。**
+                </div>
+            </a>
+            
+            <a class="card" href="mailto:2705722903@qq.com" target="_blank">
+                <h3>📧 QQ 邮箱</h3>
+                <p>邮箱: 2705722903@qq.com</p>
+                <p>欢迎通过电子邮件向我提出建议、反馈 bug 等🙃🙃。</p>
+            </a>
+        </div>
+    </section>
+    
+    <section id="egg-trigger">
+        <h2>// DIAGNOSTIC LOG (Ignore)</h2>
+        <p class="trigger-element" id="egg-button">
+            [0x8A4F_DATA_LOG] **快速连续点击 3 次** 以上以触发隐藏核心...
+        </p>
+    </section>
 
-	<script>
-		// 主题切换功能
-		document.addEventListener('DOMContentLoaded', function() {
-			const themeToggle = document.getElementById('themeToggle');
-			const themeIcon = themeToggle.querySelector('.material-icons');
-			
-			// 检测系统主题偏好
-			const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-			
-			// 根据系统主题设置初始样式
-			if (prefersDarkScheme.matches) {
-				document.body.classList.add('dark-theme');
-				themeIcon.textContent = 'light_mode';
-			} else {
-				document.body.classList.remove('dark-theme');
-				themeIcon.textContent = 'dark_mode';
-			}
-			
-			// 监听系统主题变化
-			prefersDarkScheme.addEventListener('change', e => {
-				if (e.matches) {
-					document.body.classList.add('dark-theme');
-					themeIcon.textContent = 'light_mode';
-				} else {
-					document.body.classList.remove('dark-theme');
-					themeIcon.textContent = 'dark_mode';
-				}
-			});
-			
-			// 手动切换主题
-			themeToggle.addEventListener('click', function() {
-				if (document.body.classList.contains('dark-theme')) {
-					document.body.classList.remove('dark-theme');
-					themeIcon.textContent = 'dark_mode';
-				} else {
-					document.body.classList.add('dark-theme');
-					themeIcon.textContent = 'light_mode';
-				}
-			});
+    <footer id="about">
+        <div class="mode-switch">
+            <span>DARK MODE / PINK MODE</span>
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <p>System Ver: 2.5 | Code: XJM</p>
+        <p>© 2025 director_Carter | 主页</p>
+    </footer>
 
-			// 更新页脚年份
-			const currentYear = new Date().getFullYear();
-			const yearElement = document.getElementById('current-year');
-			if (currentYear > 2025) {
-				yearElement.textContent = `2025-${currentYear}`;
-			} else {
-				yearElement.textContent = '2025';
-			}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. 实时系统时间和 Glitch 动画 ---
+            const systemTime = document.getElementById('system-time');
+            const glitchText1 = document.getElementById('glitch-text-1');
+            
+            function updateSystemTime() {
+                const now = new Date();
+                const dateString = now.toLocaleDateString('en-CA');
+                const timeString = now.toLocaleTimeString('en-GB');
+                systemTime.textContent = `DATE: ${dateString} | TIME: ${timeString}`;
+            }
+            setInterval(updateSystemTime, 1000);
+            updateSystemTime();
 
-			// 彩蛋功能
-			const avatar = document.getElementById('avatar');
-			const easterEggModal = document.getElementById('easterEggModal');
-			const easterEggClose = document.getElementById('easterEggClose');
-			let clickCount = 0;
-			let lastClickTime = 0;
+            // 故障文本动画（随机触发）
+            function activateGlitch() {
+                glitchText1.style.setProperty('--glitch-animation', 'glitch 0.2s 3');
+                setTimeout(() => {
+                    glitchText1.style.setProperty('--glitch-animation', 'none');
+                }, 600);
+            }
+            setInterval(activateGlitch, 5000); // 每 5 秒随机故障一次
 
-			avatar.addEventListener('click', function() {
-				const now = new Date().getTime();
-				if (now - lastClickTime > 500) { // 防止快速连续点击
-					clickCount = 0;
-				}
-				clickCount++;
-				lastClickTime = now;
+            // --- 2. 警告框收起/展开功能 ---
+            const alertBox = document.getElementById('alert-box');
+            alertBox.addEventListener('click', () => {
+                alertBox.classList.toggle('expanded');
+            });
 
-				if (clickCount >= 10) {
-					easterEggModal.classList.add('show');
-					clickCount = 0;
-				}
-			});
+            // --- 3. QQ号复制功能 ---
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const copyHint = document.getElementById('copy-hint');
+                    copyHint.style.opacity = '1';
+                    setTimeout(() => {
+                        copyHint.style.opacity = '0';
+                    }, 1500);
+                }).catch(err => {
+                    console.error('无法复制文本: ', err);
+                });
+            }
 
-			easterEggClose.addEventListener('click', function() {
-				easterEggModal.classList.remove('show');
-			});
-		});
-	</script>
+            // --- 4. 深色/粉色主题切换功能 ---
+            const modeToggle = document.getElementById('mode-toggle');
+            const body = document.body;
+
+            modeToggle.addEventListener('change', () => {
+                if (modeToggle.checked) {
+                    body.classList.remove('dark-mode');
+                    body.classList.add('pink-mode');
+                } else {
+                    body.classList.remove('pink-mode');
+                    body.classList.add('dark-mode');
+                }
+            });
+
+            // --- 5. 彩蛋快速点击触发器 ---
+            const eggButton = document.getElementById('egg-button');
+            const eggModal = document.getElementById('egg-modal');
+            let clickCount = 0;
+            let lastClickTime = 0;
+            const clickThreshold = 3; // 需要点击 3 次
+            const timeWindow = 500;   // 500毫秒内完成点击
+
+            eggButton.addEventListener('click', () => {
+                const now = Date.now();
+                
+                if (now - lastClickTime < timeWindow) {
+                    clickCount++;
+                    if (clickCount >= clickThreshold) {
+                        // 触发彩蛋
+                        eggModal.classList.add('active');
+                        modeToggle.checked = true; // 强制切换到粉色主题
+                        body.classList.remove('dark-mode');
+                        body.classList.add('pink-mode');
+                        
+                        // 5秒后关闭彩蛋并恢复主题
+                        setTimeout(() => {
+                            eggModal.classList.remove('active');
+                            modeToggle.checked = false; // 恢复默认主题
+                            body.classList.remove('pink-mode');
+                            body.classList.add('dark-mode');
+                        }, 5000);
+                        
+                        clickCount = 0; // 重置计数器
+                    }
+                } else {
+                    // 超过时间窗，重新开始计数
+                    clickCount = 1;
+                }
+                lastClickTime = now;
+            });
+
+            // --- 6. 平滑滚动 ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+        });
+    </script>
 </body>
 </html>
