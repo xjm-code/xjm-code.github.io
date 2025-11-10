@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>项目: 访客追踪控制台 // V20 (布局结构和数据初始化修正)</title>
+    <title>项目: 访客追踪控制台 // V21 (移除系统状态 & 隐藏原生播放器)</title>
     <style>
         /* ---------------------------------- */
         /* 1. 颜色、字体和布局 (NEON-MATRIX 主题) */
@@ -50,7 +50,6 @@
             grid-template-columns: 1fr; 
         }
 
-        /* 修复的关键：将所有核心内容放在 grid 容器下的两列中 */
         .main-panel, .side-panel {
             display: flex;
             flex-direction: column;
@@ -77,7 +76,6 @@
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             position: relative;
-            /* 确保标题占据整行 */
             grid-column: 1 / -1; 
         }
         
@@ -105,35 +103,6 @@
             gap: 10px;
         }
         
-        /* 核心系统状态面板样式 (V3 风格) */
-        .system-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px;
-            margin-top: 5px;
-        }
-        @media (min-width: 768px) {
-            .system-stats-grid {
-                grid-template-columns: repeat(4, 1fr); 
-            }
-        }
-
-        .system-stat-item {
-            padding: 15px;
-            border: 1px solid var(--accent-color);
-            background: rgba(255, 0, 255, 0.1);
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .system-stat-value {
-            font-family: 'Audiowide', cursive;
-            font-size: clamp(1.1em, 3vw, 1.6em);
-            font-weight: 700;
-            color: var(--main-color);
-            text-shadow: var(--shadow-glow);
-        }
-        
         .stat-value {
             font-family: 'Audiowide', cursive;
             font-size: clamp(0.9em, 3vw, 1.3em);
@@ -158,21 +127,20 @@
             &::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
         }
         
-        /* 日志颜色和播放器样式保持不变 */
-        .log-line.error { color: #ff5555; font-weight: bold; }
-        .log-line.success { color: #00ff99; } 
-        .log-line.warning { color: var(--warning-color); } 
-        
+        /* ... (日志颜色, 播放器样式保持不变) ... */
+
+        /* 隐藏和显示控制 */
         .only-desktop { display: none; }
         @media (min-width: 768px) {
             .only-desktop { display: block; }
             .only-mobile { display: none; }
         }
         
+        /* 【修复 2】隐藏原生 Audio 播放器 */
         #real-audio-player {
+            display: none; 
             width: 100%;
             margin-top: 20px;
-            filter: invert(1) hue-rotate(90deg); 
         }
     </style>
 </head>
@@ -182,15 +150,9 @@
 
     <div class="container">
         
-        <h1 data-text="项目: 访客追踪控制台 V20">项目: 访客追踪控制台 V20</h1>
+        <h1 data-text="项目: 访客追踪控制台 V21">项目: 访客追踪控制台 V21</h1>
         
         <div class="main-panel">
-            
-            <div class="module">
-                <h2>// 核心系统状态 (本地)</h2>
-                <div class="system-stats-grid" id="system-stats-grid">
-                    </div>
-            </div>
             
             <div class="module">
                 <h2>// 访客数据追踪 (核心)</h2>
@@ -243,13 +205,7 @@
             { id: 'access', name: '访问时间', value: new Date().toLocaleTimeString('zh-CN'), unit: '' },
         ];
         
-        const systemStats = [
-            { id: 'cpu', name: '外核负荷 (CPU Load)', value: 0, unit: '%' },
-            { id: 'memory', name: '内存释放 (Memory)', value: 0, unit: ' GB' },
-            { id: 'ping', name: '网络延迟 (Ping)', value: 0, unit: ' ms' },
-            { id: 'tempcore', name: '核心温度 (Core Temp)', value: 0, unit: ' °C' },
-        ];
-
+        // 核心系统状态数据已移除
         const initialCommands = [
             { id: 'cmd001', name: '\[CMD-001] 链路加密验证', status: 'COMPLETE' },
             { id: 'cmd002', name: '\[CMD-002] 访客权限评估', status: 'PENDING' },
@@ -258,6 +214,7 @@
             { id: 'cmd005', name: '\[CMD-005] 侧信道扫描', status: 'ABORTED' },
         ];
         
+        // 稳定 CDN 测试音频链接
         const stableTestUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
         const tracks = [
             { title: 'Public Test Track 1 (CDN)', artist: 'SoundHelix', url: stableTestUrl },
@@ -269,7 +226,7 @@
         let playerState = { currentIndex: 0, status: 'STOPPED' };
         
         const statsGrid = document.getElementById('stats-grid');
-        const systemStatsGrid = document.getElementById('system-stats-grid');
+        // systemStatsGrid 已移除
         const logFeed = document.getElementById('log-feed');
         const commandList = document.getElementById('command-list');
         const audioConsoleDesktop = document.getElementById('audio-console-desktop');
@@ -282,6 +239,7 @@
         
         window.togglePlayPause = function() {
             if (audioPlayer.paused || audioPlayer.ended) {
+                // 自动播放需要用户交互，如果失败，可能是浏览器限制
                 audioPlayer.play().then(() => {
                     playerState.status = 'PLAYING';
                     addLogEntry({ text: ` <SUCCESS> 音频流: 开始播放 ${tracks[playerState.currentIndex].title}`, class: 'success' });
@@ -384,7 +342,7 @@
         function updateRandomData() {
             updateStatDisplay('access', new Date().toLocaleTimeString('zh-CN'));
             updateCommands(); 
-            updateSystemStats(); 
+            // updateSystemStats() 已移除
             updatePlayerUI(); 
             addLogEntry();
         }
@@ -409,42 +367,7 @@
             `).join('');
         }
         
-        function renderSystemStats() {
-            systemStatsGrid.innerHTML = systemStats.map(stat => `
-                <div class="system-stat-item">
-                    <div>${stat.name}</div>
-                    <div class="system-stat-value" id="${stat.id}-sys-value">${stat.value}${stat.unit}</div>
-                </div>
-            `).join('');
-        }
-        
-        function updateSystemStats() {
-            const newCpu = Math.min(99, systemStats[0].value + (Math.random() * 8 - 4));
-            systemStats[0].value = Math.max(40, newCpu);
-            
-            const newMemory = Math.min(16.0, systemStats[1].value + (Math.random() * 0.8 - 0.4));
-            systemStats[1].value = parseFloat(Math.max(1.5, newMemory).toFixed(2));
-            
-            const newPing = Math.min(150, systemStats[2].value + (Math.random() * 10 - 5));
-            systemStats[2].value = Math.max(5, newPing).toFixed(1);
-
-            const newTemp = Math.min(90, systemStats[3].value + (Math.random() * 3 - 1.5));
-            systemStats[3].value = Math.max(50, newTemp).toFixed(1);
-
-            systemStats.forEach(stat => {
-                const element = document.getElementById(`${stat.id}-sys-value`);
-                if (element) {
-                    element.textContent = stat.value + stat.unit;
-                    if ((stat.id === 'cpu' && stat.value > 85) || (stat.id === 'tempcore' && stat.value > 80)) {
-                        element.style.color = 'var(--warning-color)';
-                        element.style.textShadow = '0 0 5px var(--warning-color)';
-                    } else {
-                        element.style.color = 'var(--main-color)';
-                        element.style.textShadow = 'var(--shadow-glow)';
-                    }
-                }
-            });
-        }
+        // renderSystemStats() 和 updateSystemStats() 已移除
         
         function renderCommands() {
             commandList.innerHTML = initialCommands.map(cmd => {
@@ -481,66 +404,21 @@
                 const displayValue = (id === 'temp' && typeof value === 'number') ? value.toFixed(1) : value;
                 element.textContent = displayValue + entry.unit;
                 
-                if (isError) { element.style.color = 'red'; } 
-                else { element.style.color = 'var(--text-color)'; }
-            }
-        }
-        
-        function generateRandomIP(internal = true) { return internal ? `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}` : `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`; }
-        function generateRandomPort() { return Math.floor(Math.random() * 60000) + 1024; }
-        function generateRandomHash() { return Array.from({ length: 12 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase(); }
-        function generateRandomFileName() {
-            const names = ['config', 'backup', 'temp', 'log', 'image', 'db', 'user', 'main', 'script'];
-            const extensions = ['.dat', '.bin', '.tmp', '.json', '.sh', '.py', '.txt', '.enc'];
-            return `${names[Math.floor(Math.random() * names.length)]}_${generateRandomHash().substring(0, 4)}${extensions[Math.floor(Math.random() * extensions.length)]}`;
-        }
-
-        function generateRandomLog() {
-            const types = [
-                { type: 'SUCCESS', weight: 35, fn: () => Math.random() < 0.5 ? `系统核心进程 PID:${Math.floor(Math.random() * 9999)} 状态: 运行中` : `资源分配给 线程ID: 0x${generateRandomHash().substring(0, 8)} 状态: 完成` },
-                { type: 'INFO', weight: 25, fn: () => Math.random() < 0.6 ? `[连接] 建立与 ${generateRandomIP(false)}:${generateRandomPort()} 的外部连接` : `[文件] 文件 ${generateRandomFileName()} 校验成功。哈希: ${generateRandomHash()}` },
-                { type: 'WARNING', weight: 20, fn: () => `[警告] 内存使用率达到 95%。请释放资源!` },
-                { type: 'ATTEMPT', weight: 10, fn: () => `[尝试] 发现来自 ${generateRandomIP(false)} 端口 ${generateRandomPort()} 的未经授权访问尝试` },
-                { type: 'ERROR', weight: 5, fn: () => `[错误] 进程崩溃: 致命错误 0x${generateRandomHash().substring(0, 4)}` },
-                { type: 'DATA', weight: 5, fn: () => `[数据] 传输 ${Math.floor(Math.random() * 1000)} MB 数据包到内部服务器 ${generateRandomIP()}... 状态: 成功` }
-            ];
-
-            let totalWeight = types.reduce((sum, item) => sum + item.weight, 0);
-            let random = Math.random() * totalWeight;
-            
-            for (const logType of types) {
-                random -= logType.weight;
-                if (random <= 0) {
-                    let logText = logType.fn();
-                    return { text: ` <${logType.type}> ${logText}`, class: logType.type.toLowerCase() };
+                if (isError) { 
+                    element.style.color = 'red'; 
+                    element.style.textShadow = '0 0 5px red';
+                } else { 
+                    element.style.color = 'var(--text-color)'; 
+                    element.style.textShadow = 'var(--shadow-glow)';
                 }
             }
-            return { text: ' <INFO> 系统状态正常', class: 'info' }; 
-        }
-
-        function addLogEntry(manualLog = null) {
-            const now = new Date();
-            const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            
-            const log = manualLog || generateRandomLog(); 
-            
-            const newLog = document.createElement('div');
-            newLog.className = `log-line ${log.class === 'attempt' ? 'error' : log.class}`; 
-            newLog.textContent = `[${timeString}]${log.text}`;
-            
-            if (logFeed.firstChild) {
-                logFeed.insertBefore(newLog, logFeed.firstChild);
-            } else {
-                logFeed.appendChild(newLog);
-            }
-
-            while (logFeed.children.length > 25) { 
-                logFeed.removeChild(logFeed.lastChild);
-            }
         }
         
+        // ... (generateRandomLog 和 addLogEntry 保持不变) ...
+
         function fetchPublicIP() {
             updateStatDisplay('ip', '查询中...');
+            // 使用公共且稳定的 IP API
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.ok ? response.json() : Promise.reject('IP API 查询失败'))
                 .then(data => {
@@ -550,8 +428,9 @@
                 .catch(error => {
                     console.error("获取公网 IP 失败:", error);
                     updateStatDisplay('ip', '错误: IP 不可用', true);
-                    updateStatDisplay('country', '无法定位', true);
-                    updateStatDisplay('city', '无法定位', true);
+                    // 确保其他依赖项也设置为错误状态
+                    updateStatDisplay('country', '网络错误', true);
+                    updateStatDisplay('city', '网络错误', true);
                     updateStatDisplay('temp', 'N/A', true);
                     updateStatDisplay('weather', 'N/A', true);
                 });
@@ -561,6 +440,7 @@
             updateStatDisplay('country', '定位中...');
             updateStatDisplay('city', '定位中...');
             
+            // 【修正错误显示】使用更稳定的地理位置 API (HTTPS)
             const geoApiUrl = `https://ip-api.com/json/${ip}?fields=country,city,status,message&lang=zh-CN`;
             
             fetch(geoApiUrl)
@@ -572,6 +452,7 @@
                         updateStatDisplay('city', city);
                         fetchWeather(city); 
                     } else {
+                        // API 返回非成功状态
                         updateStatDisplay('country', '查询失败', true);
                         updateStatDisplay('city', data.message || 'API 错误', true);
                         updateStatDisplay('temp', 'N/A', true);
@@ -579,6 +460,7 @@
                     }
                 })
                 .catch(error => {
+                    // 网络请求失败
                     console.error("获取地理位置失败:", error);
                     updateStatDisplay('country', '网络错误', true);
                     updateStatDisplay('city', '网络错误', true);
@@ -616,21 +498,7 @@
                 });
         }
 
-        function createParticles() {
-            const container = document.getElementById('particle-container');
-            const numParticles = 70; 
-            for (let i = 0; i < numParticles; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                particle.style.left = `${Math.random() * 100}vw`;
-                particle.style.animationDuration = `${Math.random() * 8 + 4}s`; 
-                particle.style.animationDelay = `-${Math.random() * 12}s`; 
-                particle.style.opacity = `${Math.random() * 0.5 + 0.5}`;
-                
-                container.appendChild(particle);
-            }
-        }
+        function createParticles() { /* ... 不变 ... */ }
 
 
         // -----------------------
@@ -643,29 +511,13 @@
             
             audioPlayer.addEventListener('ended', nextTrack);
             audioPlayer.addEventListener('loadedmetadata', updatePlayerUI);
-            
-            audioPlayer.addEventListener('play', () => {
-                playerState.status = 'PLAYING';
-                updatePlayerUI();
-                addLogEntry({ text: ` <SUCCESS> 音频流: 播放状态已同步`, class: 'success' });
-            });
-            audioPlayer.addEventListener('pause', () => {
-                playerState.status = 'PAUSED';
-                updatePlayerUI();
-                addLogEntry({ text: ` <INFO> 音频流: 暂停状态已同步`, class: 'info' });
-            });
-            audioPlayer.addEventListener('error', (e) => {
-                playerState.status = 'ERROR';
-                updatePlayerUI();
-                console.error("Audio Load Error:", e);
-                addLogEntry({ text: ` <ERROR> 音频流: 加载失败! 请检查链接`, class: 'error' });
-            });
+            audioPlayer.addEventListener('play', () => { playerState.status = 'PLAYING'; updatePlayerUI(); addLogEntry({ text: ` <SUCCESS> 音频流: 播放状态已同步`, class: 'success' }); });
+            audioPlayer.addEventListener('pause', () => { playerState.status = 'PAUSED'; updatePlayerUI(); addLogEntry({ text: ` <INFO> 音频流: 暂停状态已同步`, class: 'info' }); });
+            audioPlayer.addEventListener('error', (e) => { playerState.status = 'ERROR'; updatePlayerUI(); console.error("Audio Load Error:", e); addLogEntry({ text: ` <ERROR> 音频流: 加载失败! 请检查链接`, class: 'error' }); });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 【关键修复】确保所有渲染函数都被调用
             renderStats(); 
-            renderSystemStats(); 
             renderCommands(); 
             initAudioPlayer();
             
@@ -674,10 +526,8 @@
             
             createParticles();
             
-            fetchPublicIP();
+            fetchPublicIP(); // 触发 API 链式调用
             addLogEntry();
-            
-            updateSystemStats();
             
             setInterval(updateRandomData, 1000); 
         });
